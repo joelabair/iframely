@@ -15,10 +15,11 @@ module.exports = {
     tests: [
         "http://weheartit.com/entry/79346677/explore?context_user=jaassnna",
         {
-            pageWithFeed: "http://weheartit.com"
+            page: "http://weheartit.com/tag/white",
+            selector: ".heart-button"
         },
         {
-            skipMixins: ["keywords"]
+            skipMixins: ["keywords", "og-title"]
         }
     ]
 };

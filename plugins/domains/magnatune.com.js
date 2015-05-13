@@ -1,10 +1,10 @@
 var URL = require("url");
-var jQuery = require("jquery");
+var _ = require('underscore');
 
 module.exports = {
 
     re: [
-        /^http:\/\/magnatune\.com\/artists\/albums\/([-_a-z0-9]+)(?:\/(?:lofi_play)?)?(?:[\?#].*)?$/i
+        /^https?:\/\/magnatune\.com\/artists\/albums\/([-_a-z0-9]+)(?:\/(?:lofi_play)?)?(?:[\?#].*)?$/i
     ],
 
     mixins: [
@@ -12,6 +12,8 @@ module.exports = {
         "og-image",
         "favicon"
     ],
+
+    provides: 'magnatune_meta',
 
     getData: function(url, urlMatch, meta) {
 
@@ -35,7 +37,7 @@ module.exports = {
     },
 
     getMeta: function(magnatune_meta) {
-        var meta = jQuery.extend({}, magnatune_meta);
+        var meta = _.extend({}, magnatune_meta);
         delete meta.embed_url;
         return meta;
     },
@@ -71,7 +73,7 @@ module.exports = {
 
     tests: [{
         page: "http://magnatune.com/",
-        selector: "p td font a:has(font)"
+        selector: "ol li a:first-child"
     },
         "http://magnatune.com/artists/albums/sieber-hidden/",
         "http://magnatune.com/artists/albums/fallingyou-adore/lofi_play"

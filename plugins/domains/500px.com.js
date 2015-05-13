@@ -1,14 +1,16 @@
 module.exports = {
 
+    re: /^https:\/\/500px\.com\/photo.+/,
+
     mixins: [
         "og-title",
         "oembed-author",
         "oembed-site",
         "description",
         "oembed-thumbnail",
-        "favicon",
         "canonical",
-        "twitter-image-rel-image"
+        "og-image-rel-image",
+        "favicon"
     ],
 
     getMeta: function(meta) {
@@ -28,8 +30,7 @@ module.exports = {
     },
 
     tests: [{
-        page: "http://500px.com/upcoming",
-        selector: ".title a"
+        pageWithFeed: "https://500px.com/flow"
     },
         "http://500px.com/photo/13541787?from=upcoming"
     ]

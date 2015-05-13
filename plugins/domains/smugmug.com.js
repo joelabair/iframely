@@ -1,18 +1,25 @@
-var jquery = require('jquery');
+var $ = require('cheerio');
 
 module.exports = {
 
     mixins: [
         "canonical",
+        "favicon",
         "oembed-site",
         "oembed-author",
+        "oembed-video",
+        "oembed-duration",
         "og-image", // fallback for the thumbnails
-        "favicon"
+        "og-video",
+        "twitter-description",
+        "twitter-stream",
+        "twitter-image",
+        "twitter-stream"
     ],
 
-    getMeta: function(oembed) {
+    getMeta: function(oembed, twitter) {
         return {
-            title: oembed.title || oembed.gallery_title,
+            title: oembed.title || oembed.gallery_title || twitter.title
         };
     },
 
@@ -44,7 +51,7 @@ module.exports = {
         } else if (oembed.type === "rich") {
             // iframe'd gallery
 
-            var $container = jquery('<div>');
+            var $container = $('<div>');
 
             try {
                 $container.html(oembed.html);
@@ -60,21 +67,34 @@ module.exports = {
                 });
             }
 
-        } // else it's oembed link with no thumnbnail or other useful info
-
+        } // else it's oembed link with no thumnbnail or other useful info.
+        
         return links;
     },
 
     tests: [{
-        pageWithFeed: "http://www.smugmug.com/popular/today"
+        pageWithFeed: "http://www.smugmug.com/popular/today",
+        getUrl: function(url) {
+            return url.indexOf('smugmug.com/') > -1 ? url : null;
+        }
     },
         "http://www.smugmug.com/popular/all#!i=789708429&k=sPdffjw",
-        "http://normbetzphotos.smugmug.com/BASKETBALL-201314/HS-VS-MAUMELLE-1-23-14",
-        {
+        "http://cedricwalter.smugmug.com/Computers/Joomla/i-726WRdK/A",
+    {
+        skipMethods: ['getLink'],
         skipMixins: [
             "og-title",
             "oembed-title",
-            "canonical"
+            "oembed-author",
+            "canonical",
+            "oembed-video",
+            "og-image",
+            "og-video",
+            "twitter-stream",
+            "twitter-image",
+            "twitter-description",
+            "twitter-stream",
+            "oembed-duration"
         ]
     }]
 };

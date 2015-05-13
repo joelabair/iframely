@@ -1,4 +1,4 @@
-var jquery = require('jquery');
+var $ = require('cheerio');
 
 module.exports = {
 
@@ -24,7 +24,7 @@ module.exports = {
 
     getLink: function(oembed) {
 
-        var $container = jquery('<div>');
+        var $container = $('<div>');
         try {
             $container.html(oembed.html);
         } catch(ex) {}
@@ -36,7 +36,7 @@ module.exports = {
             doc = {
                 href: $iframe.attr('src').replace('http:', ''),
                 type: CONFIG.T.text_html,
-                rel: [CONFIG.R.player],
+                rel: [CONFIG.R.player, CONFIG.R.html5],
                 "aspect-ratio": oembed.width / oembed.height // 4:3 + 35px for nav bar :(
                                                              // Would need to host embed as js file to address this.
             };
@@ -60,8 +60,8 @@ module.exports = {
     },
 
     tests: [{
-        page: "http://www.slideshare.net/featured",
-        selector: "a.iso_slideshow_title_link"
+        page: "http://www.slideshare.net/popular/today",
+        selector: "a.iso_slideshow_link"
     },
         "http://www.slideshare.net/geniusworks/gamechangers-the-next-generation-of-business-innovation-by-peter-fisk#btnNext",
         {

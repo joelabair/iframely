@@ -1,6 +1,6 @@
-var jquery = require('jquery');
+var $ = require('cheerio');
 
-var re = /^http:\/\/www\.funnyordie\.com\/videos\//i;
+var re = /^https?:\/\/www\.funnyordie\.com\/videos\//i;
 
 module.exports = {
 
@@ -14,12 +14,13 @@ module.exports = {
         "oembed-duration",
         "og-description",
 
+        "og-image",
         "favicon"
     ],
 
     getLink: function(oembed) {
 
-        var $container = jquery('<div>');
+        var $container = $('<div>');
         try {
             $container.html(oembed.html);
         } catch(ex) {}
@@ -30,7 +31,7 @@ module.exports = {
         return {
             href: $iframe.attr('src'),
             type: CONFIG.T.text_html,
-            rel: [CONFIG.R.player, CONFIG.R.oembed],
+            rel: [CONFIG.R.player, CONFIG.R.html5],
             "aspect-ratio": oembed.width / oembed.height
         }
     },

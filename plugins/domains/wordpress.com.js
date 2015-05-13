@@ -9,12 +9,12 @@ module.exports = {
         "favicon"
     ],
 
-    getLink: function(oembed) {
+    getLink: function(oembed, __readabilityEnabled) {
 
         return {
             html: oembed.html,
-            type: CONFIG.T.safe_html,
-            rel: CONFIG.R.reader
+            type: CONFIG.T.text_html,
+            rel: [CONFIG.R.reader, CONFIG.R.inline] 
         }
     },
 

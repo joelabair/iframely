@@ -1,25 +1,43 @@
+var $ = require('cheerio');
+
 module.exports = {
 
-    re: /http:\/\/codepen\.io\/([a-z0-9\-]+)\/(pen|details)\/([a-z0-9\-]+)/i,
+    re: /https?:\/\/codepen\.io\/([a-z0-9\-]+)\/(pen|details|full)\/([a-z0-9\-]+)/i,
 
     mixins: [
-        "twitter-image",
-        "favicon",
-        "canonical",
-        "twitter-description",
-        "og-site",
-        "twitter-title"
+        "oembed-thumbnail",
+        "oembed-author",
+        "oembed-site",
+        "oembed-title"
     ],
 
-    getLink: function(urlMatch) {
+    getLink: function(oembed) {
 
-        return {
-            type: CONFIG.T.safe_html,
-            rel: CONFIG.R.reader,
-            html: '<p data-height="600" data-theme-id="0" data-slug-hash="' + urlMatch[3] + '" data-user="' + urlMatch[1] 
-                        + '" data-default-tab="result" class="codepen"></p><script async src="//codepen.io/assets/embed/ei.js"></script>',
-            height: 600
-        };
+        var links = [{
+            href: "http://codepen.io/favicon.ico",
+            type: CONFIG.T.image_icon,
+            rel: CONFIG.R.icon,
+            width: 32,
+            height: 32
+        }];
+
+        var $container = $('<div>');
+        try{
+            $container.html(oembed.html);
+        } catch(ex) {}
+
+        var $iframe = $container.find('iframe');
+
+        if ($iframe.length == 1) {
+            links.push({
+                href: $iframe.attr('src'),
+                type: CONFIG.T.text_html,
+                rel: [CONFIG.R.app, CONFIG.R.oembed],
+                height: oembed.height
+            });
+        }
+
+        return links;
     },
 
     tests: [ {

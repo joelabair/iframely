@@ -1,6 +1,6 @@
 module.exports = {
 
-    re: /http:\/\/www\.theguardian\.com\/\w+\/video\/\d+\/\w+\/\d+\/[\w-]+/i,
+    re: /https?:\/\/www\.theguardian\.com\/[\w-]+\/video\/\d+\/\w+\/\d+\/[\w-]+/i,
 
     mixins: [
         "canonical",
@@ -14,24 +14,22 @@ module.exports = {
         "og-image"
     ],
 
-    getLink: function(meta) {
+    getLink: function(og) {
 
-        // Only "World news" has embedable videos.
-        if (meta.video && meta.video.tag && meta.video.tag.indexOf("World news") > -1) {
+        if (og.type === 'video' && og.video && og.video.url) {
+
             return {
-                href: "http://embedded-video.guardianapps.co.uk/?a=false&u=" + meta["content-id"],
+                href: og.video.url.replace(/https?:\/\/www\.theguardian\.com\//, "https://embed.theguardian.com/embed/video/"),
                 type: CONFIG.T.text_html,
-                rel: CONFIG.R.player,
-                width: 460,
-                height: 397
+                rel: [CONFIG.R.player, CONFIG.R.html5],
+                "aspect-ratio": 560 / 315
             };
         }
 
     },
 
-    tests: [{
-        pageWithFeed: "http://www.guardian.co.uk/world/world+content/video"
-    },
-        "http://www.guardian.co.uk/world/video/2013/jun/26/julia-gillard-ousted-prime-minister-video"
+    tests: [
+        "http://www.guardian.co.uk/world/video/2013/jun/26/julia-gillard-ousted-prime-minister-video",
+        "http://www.theguardian.com/tv-and-radio/video/2014/may/14/russian-mp-sings-protest-austria-conchita-wurst-eurovision-video"
     ]
 };

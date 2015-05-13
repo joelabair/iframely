@@ -1,50 +1,46 @@
-/************************
- Pinterest is not parser-friendly and we would violate
- their Acceptable Use Policy at http://about.pinterest.com/use/
- if we are to provide a proper embed plugin to their domain
- and thus enable you to violate the same policy.
-
- We can't let your network be blacklisted with Pinterest
- per https://en.help.pinterest.com/entries/22914692
-
- If you notice that their policy changed and we had not updated this plugin yet,
- give us a shout and we'll tweak it promptly.
- *************************/
+var DEFAULT_WIDTH = 600;
 
 module.exports = {
 
-    re: /^https?:\/\/(?:www\.)?pinterest\.com\/((?!pin)[a-z0-9]+)\/([\w\-]+)\/?(?:$|\?|#)/i,
+    re: /^https?:\/\/(?:www\.)?pinterest\.com\/((?!pin)[a-zA-Z0-9%]+)\/([a-zA-Z0-9%\-]+)\/?(?:$|\?|#)/i,
 
-    getMeta: function() {
+    mixins: [
+        "favicon",
+        "canonical",
+        "description",
+        "og-site",
+        "html-title"
+    ],
+
+    getLink: function(url, twitter, options) {
+
+        if (twitter.app && twitter.app.iphone && twitter.app.iphone.indexOf('board/') == -1) {
+            return;
+        }
+
         return {
-            title: "Pinterest Board",
-            site: "Pinterest"
-        };
-    },
-
-    getLink: function(url) {
-        return [{
             type: CONFIG.T.text_html,
-            rel: CONFIG.R.reader,
+            rel: [CONFIG.R.app, CONFIG.R.ssl, CONFIG.R.html5],
             template: "pinterest.widget",
             template_context: {
                 url: url,
                 title: "Pinterest Board",
                 type: "embedBoard",
-                width: 800,
+                width: options.maxWidth || DEFAULT_WIDTH,
                 height: 600,
                 pinWidth: 120
             },
-            width: 800,
-            height: 600+120
-        }];
+            width: options.maxWidth || DEFAULT_WIDTH,
+            height: 600 + 120
+        };
     },
 
     tests: [{
-        page: "http://pinterest.com/all/science_nature/",
-        selector: ".pinUserAttribution a.lastAttribution"
+        // No Test Feed here not to violate "scrapping" restrictions of Pinterest
+        noFeeds: true
     },
         "http://pinterest.com/bcij/art-mosaics/",
-        "http://pinterest.com/bcij/aging-gracefully/"
+        "http://pinterest.com/bcij/aging-gracefully/",
+        "https://www.pinterest.com/mimimememe/office-humor-work-jokes/"
     ]
 };

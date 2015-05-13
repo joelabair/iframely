@@ -1,16 +1,16 @@
 module.exports = {
 
-
     re: [
-        /^http:\/\/(\w+\.)?lifehacker\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?gawker\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?jezebel\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?gizmodo\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?deadspin\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?io9\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?kotaku\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?jalopnik\.com\/[a-z0-9-]+/i,
-        /^http:\/\/(\w+\.)?kinja\.com\/[a-z0-9-]+/i
+        /^https?:\/\/(\w+\.)?lifehacker\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?gawker\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?jezebel\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?gizmodo\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?deadspin\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?io9\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?kotaku\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?jalopnik\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?kinja\.com\/[a-z0-9\-]+/i,
+        /^https?:\/\/(\w+\.)?cink\.hu\/[a-z0-9\-]+/i
     ],
 
 
@@ -25,14 +25,14 @@ module.exports = {
         "og-title"
     ],
 
-    getData: function(meta, $selector) {
+    getData: function(meta, cheerio, __readabilityEnabled) {
 
-        var $html = $selector('div.post-content');
+        var $html = cheerio('div.post-content');
 
         if ($html.length) {
 
-            var $image = $selector('span.img-border.mbs img');
-            var $iframe = $selector('span.flex-video iframe');
+            var $image = cheerio('span.img-border.mbs img');
+            var $iframe = cheerio('span.flex-video iframe');
 
             var html = '';
 
@@ -45,9 +45,7 @@ module.exports = {
             html += $html.html();
 
             return {
-                readability_data: {
-                    html: html
-                }
+                safe_html: html
             };
         }
 

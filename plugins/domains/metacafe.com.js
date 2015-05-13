@@ -1,7 +1,7 @@
 module.exports = {
 
     re: [
-        /^https?:\/\/www\.metacafe\.com\/watch\/([a-zA-Z0-9\-]+)/i
+        /^https?:\/\/www\.metacafe\.com\/watch\/(\d+)/i
     ],
 
     mixins: [
@@ -35,6 +35,9 @@ module.exports = {
     },
 
     tests: [{
-        pageWithFeed: "http://www.metacafe.com"
-    }]
+        page: "http://www.metacafe.com",
+        selector: ".ItemTitle a"
+    },
+        "http://www.metacafe.com/watch/9677285/django_unchained_movie_review"
+    ]
 };

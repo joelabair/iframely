@@ -1,4 +1,4 @@
-var jquery = require('jquery');
+var $ = require('cheerio');
 
 module.exports = {
 
@@ -9,7 +9,7 @@ module.exports = {
 
     getLink: function(oembed) {
 
-        var $container = jquery('<div>');
+        var $container = $('<div>');
         try {
             $container.html(oembed.html);
         } catch(ex) {}
@@ -21,7 +21,7 @@ module.exports = {
             player = {
                 href: $iframe.attr('src'),
                 type: CONFIG.T.text_html,
-                rel: CONFIG.R.player,
+                rel: [CONFIG.R.player, CONFIG.R.html5],
                 "min-width": oembed.width,
                 "min-height": oembed.height
             }
@@ -37,8 +37,8 @@ module.exports = {
             }, {
                 href: '//www.rdio.com/favicon.ico',
                 type: CONFIG.T.image,
-                rel: CONFIG.R.icon,
-        }]
+                rel: CONFIG.R.icon
+        }];
     },
 
     tests: [

@@ -1,7 +1,9 @@
 module.exports = {
 
     re: [
-        /^http:\/\/prezi\.com\/([a-z0-9\-]+)\/([a-z0-9\-]+)/i
+        /^https?:\/\/prezi\.com\/(?!embed)(?!bin)(?!press)([a-z0-9_-]+)\/[a-z0-9_-]+/i,
+        /^https?:\/\/prezi\.com\/embed\/([a-z0-9_-]+)\//i,
+        /^https?:\/\/prezi\.com\/bin\/preziloader\.swf\?prezi_id=([a-z0-9_-]+)/i
     ],
 
     mixins: [
@@ -20,20 +22,9 @@ module.exports = {
     },
 
     getLink: function(urlMatch) {
-        /**
-        Here's the original embed code: 
-        <iframe src="http://prezi.com/embed/hvsanqexuoza/?
-            bgcolor=ffffff
-            &amp;lock_to_path=0
-            &amp;autoplay=0
-            &amp;autohide_ctrls=0
-            &amp;features=undefined
-            &amp;disabled_features=undefined" 
-        width="550" height="400" frameBorder="0"></iframe>
-        */
 
         return {
-            href: 'http://prezi.com/embed/' + urlMatch[1] + '/?bgcolor=ffffff&amp;lock_to_path=0&amp;autoplay=0&amp;autohide_ctrls=0&amp;',
+            href: 'https://prezi.com/embed/' + urlMatch[1] + '/',
             type: CONFIG.T.text_html,
             rel: CONFIG.R.player,
             "aspect-ratio": 550 / 400

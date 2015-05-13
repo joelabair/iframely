@@ -1,43 +1,27 @@
 module.exports = {
 
-    re: /^https?:\/\/visual\.ly\/[\u0000-\u0080]+/i,
-
     mixins: [
+        "twitter-image",
+        "og-image",
         "canonical",
         "description",
+        "keywords",
         "shortlink",
-        "dc-title",
-        "favicon"
+        "twitter-site",
+        "twitter-title"
     ],
 
-    getLinks: function(meta) {
-
-        var thumbnail = meta.og.image;
-        var str = thumbnail.split('_');
-        var ext = thumbnail.split('.');
-        var original = str[0]+'_'+str[1]+'.' + ext[ext.length - 1];
-
-        return [{
-            href: thumbnail,
-            type: CONFIG.T.image,
-            rel: CONFIG.R.thumbnail,
-            width: 250,
-            height: 250
-        }, {
-            href: original,
-            type: CONFIG.T.image,
+    getLink: function(twitter) {
+        return {
+            href: twitter.image.replace(/_h750/, ''),
+            type: CONFIG.T.image_jpeg,
             rel: CONFIG.R.image
-        }];
+        };
     },
 
     tests: [{
-        pageWithFeed: "http://visual.ly/"
+        noFeeds: true
     },
-        "http://visual.ly/spring-cleaning-improve-energy-efficiency",
-        {
-            skipMixins: [
-                "description"
-            ]
-        }
+        "http://visual.ly/100k-3d-models-uploaded-sketchfab"
     ]
 };

@@ -1,19 +1,20 @@
 module.exports = {
 
     mixins: [
-        "og-title",
+        "oembed-title",
         "description",
         "oembed-author",
         "oembed-thumbnail",
         "oembed-video-responsive",
         "video",
-        "favicon",
-        "keywords"
+        "favicon"
     ],
 
     tests: [{
         page: "http://blip.tv/",
         selector: ".EpisodeCardLink"
+    }, {
+        skipMixins: ["video"]
     },
         "http://blip.tv/LTAH/origins-of-the-original-six-montreal-6344702"
     ]
