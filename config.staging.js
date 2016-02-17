@@ -102,7 +102,7 @@
             google: {
                 // https://developers.google.com/maps/documentation/embed/guide#api_key
                 // yes, there is already "apiKey" option above, but I am not sure if old keys are the same as the news ones.
-                maps_key: "INSERT YOUR VALUE"
+                maps_key: process.env.SS_GD_API_KEY || "INSERT YOUR VALUE"
             },
 
             /*
