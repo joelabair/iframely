@@ -132,28 +132,28 @@
         // More about format: https://iframely.com/docs/qa-format
 
     	WHITELIST_WILDCARD: {
-              "twitter": {
-                "player": "allow",
-                "photo": "deny"
-              },
-              "oembed": {
-                "video": "allow",
-                "photo": "deny",
-                "rich": "deny",
-                "link": "deny"
-              },
-              "og": {
-                "video": ["allow", "ssl"]
-              },
-              "iframely": {
-                "survey": "deny",
-                "reader": "deny",
-                "player": "allow",
-                "image": "deny",
-              },
-              "html-meta": {
-                "video": ["allow", "responsive"]
-              }
+			"twitter": {
+				"player": "allow",
+				"photo": "deny"
+			},
+			"oembed": {
+				"video": "allow",
+				"photo": "allow",
+				"rich": "deny",
+				"link": "deny"
+			},
+			"og": {
+				"video": ["allow", "ssl", "responsive"]
+			},
+			"iframely": {
+				"survey": "allow",
+				"reader": "allow",
+				"player": "allow",
+				"image": "allow"
+			},
+			"html-meta": {
+				"video": ["allow", "responsive"]
+			}
         }
     };
 
