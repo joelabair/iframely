@@ -15,6 +15,8 @@ function prepareUri(uri) {
         return uri;
     }
 
+    uri = uri.replace(/[\u200B-\u200D\uFEFF]/g, '');
+
     if (uri.match(/^\/\//i)) {
         return "http:" + uri;
     }
@@ -69,8 +71,7 @@ module.exports = function(app) {
                     getWhitelistRecord: whitelist.findWhitelistRecordFor,
                     maxWidth: getIntParam(req, 'maxwidth') || getIntParam(req, 'max-width'),
                     promoUri: req.query.promoUri,
-                    forcePromo: getBooleanParam(req, 'forcePromo'),
-                    forOembed: req.query['for'] === 'oembed'
+                    refresh: getBooleanParam(req, 'refresh')
                 }, cb);
             }
 
@@ -96,29 +97,31 @@ module.exports = function(app) {
                 delete result.safe_html;
             }
 
-            var render_link = _.find(result.links, function(link) {
-                return link.html
-                    && !link.href
-                    && link.rel.indexOf(CONFIG.R.inline) === -1
-                    && link.type === CONFIG.T.text_html;
-            });
-            if (render_link) {
-                cache.set('render_link:' + version + ':' + uri, _.extend({
-                    title: result.meta.title
-                }, render_link)); // Copy to keep removed fields.
-                render_link.href = CONFIG.baseAppUrl + "/render?uri=" + encodeURIComponent(uri);
-                delete render_link.html;
-            } else {
-                // Cache non inline link to later render for older consumers.
-                render_link = _.find(result.links, function(link) {
+            if (!CONFIG.SKIP_IFRAMELY_RENDERS) {
+                var render_link = _.find(result.links, function(link) {
                     return link.html
-                        && link.rel.indexOf(CONFIG.R.inline) > -1
+                        && !link.href
+                        && link.rel.indexOf(CONFIG.R.inline) === -1
                         && link.type === CONFIG.T.text_html;
                 });
                 if (render_link) {
                     cache.set('render_link:' + version + ':' + uri, _.extend({
                         title: result.meta.title
                     }, render_link)); // Copy to keep removed fields.
+                    render_link.href = CONFIG.baseAppUrl + "/render?uri=" + encodeURIComponent(uri);
+                    delete render_link.html;
+                } else {
+                    // Cache non inline link to later render for older consumers.
+                    render_link = _.find(result.links, function(link) {
+                        return link.html
+                            && link.rel.indexOf(CONFIG.R.inline) > -1
+                            && link.type === CONFIG.T.text_html;
+                    });
+                    if (render_link) {
+                        cache.set('render_link:' + version + ':' + uri, _.extend({
+                            title: result.meta.title
+                        }, render_link)); // Copy to keep removed fields.
+                    }
                 }
             }
 
@@ -134,7 +137,7 @@ module.exports = function(app) {
                 autoplayMode: getBooleanParam(req, 'autoplay')
             });
 
-            if (req.query.group) {
+            if (req.query.group || CONFIG.GROUP_LINKS) {
                 var links = result.links;
                 var groups = {};
                 CONFIG.REL_GROUPS.forEach(function(rel) {
@@ -181,7 +184,7 @@ module.exports = function(app) {
             return next(new Error("'uri' get param expected"));
         }
 
-        if (uri.split('/')[2].indexOf('.') === -1) {
+        if (!CONFIG.DEBUG && uri.split('/')[2].indexOf('.') === -1) {
             return next(new Error("local domains not supported"));
         }
 
@@ -244,7 +247,7 @@ module.exports = function(app) {
             return next(new Error("'uri' get param expected"));
         }
 
-        if (uri.split('/')[2].indexOf('.') === -1) {
+        if (!CONFIG.DEBUG && uri.split('/')[2].indexOf('.') === -1) {
             return next(new Error("local domains not supported"));
         }
 
@@ -359,7 +362,7 @@ module.exports = function(app) {
             return next(new Error("'url' get param expected"));
         }
 
-        if (uri.split('/')[2].indexOf('.') === -1) {
+        if (!CONFIG.DEBUG && uri.split('/')[2].indexOf('.') === -1) {
             return next(new Error("local domains not supported"));
         }
 
@@ -374,7 +377,7 @@ module.exports = function(app) {
                     filterNonSSL: getBooleanParam(req, 'ssl'),
                     filterNonHTML5: getBooleanParam(req, 'html5'),
                     maxWidth: getIntParam(req, 'maxwidth') || getIntParam(req, 'max-width'),
-                    forOembed: req.query['for'] === 'oembed'
+                    refresh: getBooleanParam(req, 'refresh')
                 }, cb);
             }
 
@@ -398,7 +401,9 @@ module.exports = function(app) {
                 maxWidth: getIntParam(req, 'maxwidth') || getIntParam(req, 'max-width')
             });
 
-            var oembed = oembedUtils.getOembed(uri, result);
+            var oembed = oembedUtils.getOembed(uri, result, {
+                mediaPriority: getBooleanParam(req, 'media')
+            });
 
             if (req.query.format === "xml") {
 

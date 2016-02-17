@@ -13,11 +13,18 @@ module.exports = {
 
     getLink: function(urlMatch, twitter) {
 
-        if (twitter.image && twitter.image.src) {
+        var image = twitter.image.src || twitter.image;
+
+        if (image && /\/(users|startups)\//.test(image)) {
+
+            var id = image.match(/\/\w+\/(\d+)-/)[1];
+            if (id === '6702' && urlMatch[1] !== 'angellist') {return;}
+            
             return {
                 template_context: {
                     title: twitter.title,
-                    id: twitter.image.src.match(/\/i\/(\d+)-/)[1],
+                    id: id,
+                    type: image.match(/user/) || 'startup',
                     slug: urlMatch[1]
                 },
                 type: CONFIG.T.text_html,

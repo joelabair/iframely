@@ -4,7 +4,7 @@
 
      Iframely consumer client lib.
 
-     Version 0.8.3
+     Version 0.9.2
 
      Fetches and renders iframely oebmed/2 widgets.
 
@@ -110,25 +110,29 @@
     $.iframely.registerIframesIn = function($parent) {
 
         $parent.find('iframe').each(function() {
-
             var $iframe = $(this);
+            $.iframely.registerIframe($iframe);
+        });
 
-            if ($iframe.attr('iframely-registered')) {
-                return;
-            }
+    };
 
-            $iframe.attr('iframely-registered', true);
+    $.iframely.registerIframe = function($iframe, id) {
+        if (!$iframe || $iframe.attr('iframely-registered')) {
+            return;
+        }
 
-            $iframe.load(function() {
+        $iframe.attr('iframely-registered', true);
 
-                var iframesCounter = $.iframely.iframesCounter = ($.iframely.iframesCounter || 0) + 1;
+        $iframe.load(function() {
 
-                $.iframely.iframes[iframesCounter] = $iframe;
-                windowMessaging.postMessage({
-                    method: "register",
-                    windowId: iframesCounter
-                }, '*', this.contentWindow);
-            });
+            var iframesCounter = $.iframely.iframesCounter = ($.iframely.iframesCounter || 0) + 1,
+                windowId = id || iframesCounter;
+
+            $.iframely.iframes[windowId] = $iframe;
+            windowMessaging.postMessage({
+                method: "register",
+                windowId: windowId
+            }, '*', this.contentWindow);
         });
     };
 
@@ -224,7 +228,7 @@
 
         // Default aspect ratio.
         if (!media || (!media.height && !media["aspect-ratio"])) {
-            $container.css('padding-bottom', '75%');
+            $container.css('padding-bottom', '56.25%');
         }
 
         if (media) {
@@ -275,7 +279,7 @@
         },
         "image": {
             test: function(data) {
-                return /^image(\/[\w-]+)?$/i.test(data.type)
+                return /^image(\/[\w\.-]+)?$/i.test(data.type)
                     && data.href;
             },
             generate: function(data) {

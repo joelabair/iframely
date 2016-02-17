@@ -16,10 +16,13 @@
         // Default cache engine to prevent warning.
         CACHE_ENGINE: 'node-cache',
         CACHE_TTL: 24 * 60 * 60,
+        API_REQUEST_CACHE_TTL: 30 * 24 * 60 * 60,
+        IMAGE_META_CACHE_TTL: 7 *24 * 60 * 60,
 
         CACHE_TTL_PAGE_TIMEOUT: 10 * 60,
         CACHE_TTL_PAGE_404: 10 * 60,
 
+        CLUSTER_WORKER_RESTART_ON_PERIOD: 8 * 3600 * 1000, // 8 hours.
         CLUSTER_WORKER_RESTART_ON_MEMORY_USED: 500 * 1024 * 1024, // 500 MB.
         CLUSTER_MAX_CPU_LOAD_TIME_IN_SECONDS: 20,   // if 20 seconds load over 95% - restart worker.
         CLUSTER_MAX_CPU_LOAD_IN_PERCENT: 95,
@@ -28,6 +31,9 @@
 
         USER_AGENT: "Iframely/" + version + " (+http://iframely.com/;)",
         VERSION: version,
+
+        SKIP_IFRAMELY_RENDERS: false,
+        DEFAULT_ASPECT_RATIO: 16 / 9,
 
         T: {
             text_html: "text/html",
@@ -89,6 +95,7 @@
             og: "og",
             twitter: "twitter",
             oembed: "oembed",
+            sm4: "sm4",
 
             icon: "icon",
             logo: "logo",
@@ -122,6 +129,9 @@
             "og": [
                 "video"
             ],
+            "sm4": [
+                "video"
+            ],
             "oembed": [
                 "link",
                 "rich",
@@ -129,7 +139,8 @@
                 "photo"
             ],
             "html-meta": [  // TODO: Need change to 'fb'.
-                "video"
+                "video",
+                "embedURL"
             ]
         },
 
@@ -153,10 +164,13 @@
             "oembed",
             "og",
             "twitter",
-            "iframely"
+            "iframely",
+            "sm4"
         ],
 
         OEMBED_RELS_PRIORITY: ["app", "player", "survey", "image", "reader"],
+        OEMBED_RELS_MEDIA_PRIORITY: ["player", "survey", "image", "reader", "app"],
+
         providerOptions: {
             "readability": {},
             "twitter.status": {}

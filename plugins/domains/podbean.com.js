@@ -1,12 +1,7 @@
 module.exports = {
 
     mixins: [
-        "og-image",
-        "favicon",
-        "canonical",
-        "og-description",
-        "keywords",
-        "og-title"
+        "*"
     ],
 
     getLink: function(url, cheerio) {
@@ -44,10 +39,8 @@ module.exports = {
         pageWithFeed: 'http://boyt.podbean.com'
     }, {
         pageWithFeed: 'http://anfieldindex.podbean.com'
-    }, {
-        skipMixins: ['keywords', 'favicon']
     },
-        "http://thebarometer.podbean.com/e/science-communication-the-ipcc-and-a-goodbye-day-5-at-egu-2014/",
+        "http://realenglishconversations.podbean.com/e/english-podcast-17-our-personal-story-real-english-conversations/",
         "http://thehashtaghunter.podbean.com/e/law-of-attraction/"
     ]
 };

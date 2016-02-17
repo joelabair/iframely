@@ -5,28 +5,39 @@ module.exports = {
     ],
 
     mixins: [
-        "canonical",
+        "oembed-canonical",
         "author",
-        "og-site",
-        "og-title",
+        "oembed-site",
+        "oembed-title",
         "keywords",
         "twitter-image",
-        "twitter-player-responsive",
         "favicon"
     ],
 
-    getLinks: function(urlMatch) {
+    getLinks: function(oembed, twitter, options) {
 
-        var id = urlMatch[1].split('-').slice(-1)[0];
+        var media_only = options.getProviderOptions('giphy.media_only', false) && oembed.image;
 
-        // http://media.giphy.com/media/YJ88JyDL61jeo/original.gif
-        var original = "http://media.giphy.com/media/" + id  + "/giphy.gif";
+        var links = [];
 
-        return {
-            href: original,
+        if (!media_only && twitter.player) {
+            links.push({
+                href: twitter.player.value || twitter.player,
+                type: CONFIG.T.text_html,
+                rel: [CONFIG.R.player, CONFIG.R.twitter, CONFIG.R.html5, CONFIG.R.gifv],
+                "aspect-ratio": twitter.player.width / twitter.player.height
+            });
+        }
+
+        links.push({
+            href: oembed.image,
             type: CONFIG.T.image_gif,
-            rel: CONFIG.R.image
-        };
+            rel: CONFIG.R.image,
+            width: oembed.width,
+            height: oembed.height
+        });
+
+        return links;
     },
 
     tests: [{

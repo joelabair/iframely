@@ -5,14 +5,7 @@ module.exports = {
     ],
 
     mixins: [
-        "og-image",
-        "favicon",
-        "author",
-        "canonical",
-        "copyright",
-        "og-description",
-        "og-site",
-        "og-title"
+        "*"
     ],
 
     getLink: function(og, urlMatch) {
@@ -28,20 +21,16 @@ module.exports = {
             rel: CONFIG.R.player,
             height: og.video && og.video.height,
             'min-width': og.video && og.video.width
+        }, {
+            href: "https://www.beatport.com/favicon.ico",
+            type: CONFIG.T.image,
+            rel: CONFIG.R.icon
         }];
     },
 
     tests: [{
         page: "http://www.beatport.com/",
         selector: "a.itemRenderer-title"
-    }, {
-        skipMixins: [
-            "author",
-            "canonical",
-            "copyright",
-            "og-site",
-            "og-description"
-        ]
     },
         "http://www.beatport.com/track/kiss-bitches-original-mix/5374571",
         "http://mixes.beatport.com/mix/happy-ch-electro-pop-vol-006/163618",

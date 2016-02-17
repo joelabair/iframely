@@ -1,84 +1,63 @@
-var $ = require('cheerio');
-
 module.exports = {
 
-    re: /https?:\/\/imgur\.com\/(?:\w+\/)?(\w+).*/i,
+    re: [
+        /https?:\/\/imgur\.com\/t\/\w+\/(\w+).*/i,
+        /https?:\/\/imgur\.com\/topic\/[a-zA-Z0-9\-_&]+\/(\w+).*/i,
+        /https?:\/\/imgur\.com\/(?:\w+\/)?(\w+).*/i,
+    ],
+
+    provides: ["oembedLinks"],
 
     mixins: [
         "favicon",
         "canonical",
         "oembed-author",
-        "twitter-image", // both as fall back, and as thumbnails for galleries
+        "twitter-title",
+        "twitter-image",  // image for images, thumbnails for gallery
+        "twitter-stream", // only for gifv
         "oembed-site"
     ],
-
-    getMeta: function(meta) {
-        return {
-            title: meta.twitter.title.replace('- Imgur', '')
-        };
-    },
-
-    getLink: function(oembed, og) {
-
-        var links = [];
-
-        if (og.type === 'video.other' && og.video && og.video.length > 1 && og.video[1].type === 'video/mp4') {
-            var v = og.video[1];
-            links.push({
-                href: v.url.replace("http://", "//"),
-                type: v.type,
-                rel: [CONFIG.R.player, CONFIG.R.og, CONFIG.R.gifv],
-                width: v.width,
-                height: v.height
-            });
-        }
-
-        if (oembed.type === "photo" && oembed.url) {
-            links.push({
-                href: oembed.url.replace("http://", "//"),
-                type: CONFIG.T.image,
-                rel: [CONFIG.R.image, CONFIG.R.thumbnail, CONFIG.R.oembed],
-                width: oembed.width,
-                height: oembed.height
-            });
-        }
-
+    
+    getLink: function(oembed, twitter, options) {
 
         if (oembed.type == "rich") {
-            var $container = $('<div>');
-            try{
-                $container.html(oembed.html5 || oembed.html);
-            } catch(ex) {}
+            // oembed photo isn't used as of May 18, 2015
 
-            var $iframe = $container.find('iframe');
+            var media_only = options.getProviderOptions('imgur.media_only', false);
+            var isGallery = twitter.card == "gallery";
 
-            if ($iframe.length == 1) {
-                links.push({
-                    href: $iframe.attr('src').replace("http://","//"),
+            if (!media_only || isGallery) {                
+                return {
+                    html: oembed.html,
+                    width: oembed.width,
                     type: CONFIG.T.text_html,
-                    rel: [CONFIG.R.player, CONFIG.R.oembed, CONFIG.R.html5],
-                    "aspect-ratio": oembed.width / oembed.height
-                });
+                    rel: [CONFIG.R.app, CONFIG.R.oembed, CONFIG.R.html5, CONFIG.R.inline, CONFIG.R.ssl]
+                };
+            } else {
+                return {
+                    href: "http://s.imgur.com/images/favicon-96x96.png",
+                    width: 96,
+                    height: 96,
+                    type: CONFIG.T.image_png,
+                    rel: CONFIG.R.icon
+                }
             }
         }
+    },
 
-        if (og.image && og.image instanceof Array) {
-            var gifs = og.image.filter(function(link) {
-                return link.url && link.url.match(/\.gif$/i);
-            });
+    getData: function (meta, urlMatch, cb) {
 
-            if (gifs.length) {
-                links.push({
-                    href: gifs[0].url,
-                    type: CONFIG.T.image,
-                    rel: [CONFIG.R.og, CONFIG.R.image],
-                    width: gifs[0].width,
-                    height: gifs[0].height
-                });
-            }
-        }
+         var links =  ['json', 'xml'].map(function(format) {
+                return {
+                    href: "http://api.imgur.com/oembed." + format + "?url=http://imgur.com/" + (meta.twitter && meta.twitter.card == 'gallery' ? 'a/' : '') + urlMatch[1] ,
+                    rel: 'alternate',
+                    type: 'application/' + format + '+oembed'
+                }
+            });        
 
-        return links;
+        cb(null, {
+            oembedLinks: links
+        });            
     },
 
     tests: [{
@@ -86,16 +65,20 @@ module.exports = {
     }, {
         skipMixins: [
             "twitter-image",
+            "twitter-stream",       // works for GIFvs only
             "oembed-author"         // Available for Galleries only
-        ],
-        skipMethods: ["getLink"]
+        ]
     },    
         "http://imgur.com/Ks3qs",
         "http://imgur.com/gallery/IiDwq",
         "http://imgur.com/a/yMoaT",
         "https://imgur.com/gallery/B3X48s9",
-        "http://imgur.com/r/aww/tFKv2zQ",    // kitten bomb before, doesn't seem to show up any longer
+        // "http://imgur.com/r/aww/tFKv2zQ",    // kitten bomb before, doesn't seem to show up any longer
         "http://imgur.com/gallery/bSE9nTM",
-        "http://imgur.com/gallery/EqmEsJj"
+        "http://imgur.com/gallery/EqmEsJj",
+        "https://imgur.com/gallery/kkEzJsa",
+        "http://imgur.com/t/workout/HFwjGoF",
+        "http://imgur.com/t/water/ud7YwQp",
+        "http://imgur.com/topic/The_Oscars_&_Movies/YFQo6Vl"
     ]
 };
