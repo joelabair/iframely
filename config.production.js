@@ -118,11 +118,11 @@
             // API key is optional, youtube will work without it too.
             // It is probably the same API key you use for Google Maps.
             youtube: {
-                // api_key: "INSERT YOUR VALUE",
-                get_params: "?rel=0&showinfo=1"     // https://developers.google.com/youtube/player_parameters
+                api_key: process.env.SS_GD_API_KEY,
+                get_params: "?rel=0&showinfo=1&autoplay=0"     // https://developers.google.com/youtube/player_parameters
             },
             vimeo: {
-                get_params: "?byline=0&badge=0"     // http://developer.vimeo.com/player/embedding
+                get_params: "?byline=0&badge=0&autoplay=0"     // http://developer.vimeo.com/player/embedding
             }
         },
 
