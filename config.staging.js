@@ -30,7 +30,7 @@
         - redis - https://github.com/mranney/node_redis.
         - memcached - https://github.com/3rd-Eden/node-memcached
         */
-        CACHE_ENGINE: 'memcached',
+        CACHE_ENGINE: 'no-cache',
         CACHE_TTL: 5000, // In milliseconds. 0 for 'never expire' to let cache engine decide itself when to evict the record
 
         /*
