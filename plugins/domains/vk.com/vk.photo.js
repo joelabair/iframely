@@ -3,10 +3,10 @@ module.exports = {
     provides: "vk_photo",
 
     re: [
-        /^https?:\/\/(?:m\.)?vk\.com\/photo([0-9-]+)_(\d+)/i
+        /^https?:\/\/(?:m|new\.)?vk\.com\/photo([0-9-]+)_(\d+)/i
     ],
 
-    mixins: ["domain-icon"],
+    // mixins: ["domain-icon"], // it's broken
 
     getMeta: function (vk_photo) {
 

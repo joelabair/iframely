@@ -1,8 +1,7 @@
 module.exports = {
 
     re: [
-        /^https?:\/\/vk\.com\/video/i,
-        /^https?:\/\/m\.vk\.com\/video/i
+        /^https?:\/\/(?:m|new\.)?vk\.com\/video/i
     ],
 
     mixins: [
@@ -12,8 +11,8 @@ module.exports = {
         "og-description",
         "og-video-duration",
         "og-site",
-        "og-title", 
-        "domain-icon"
+        "og-title"
+        // ["domain-icon"], // it's broken
     ],
 
     getLink: function(url, meta, cb) {

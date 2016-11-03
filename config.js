@@ -1,4 +1,8 @@
 (function() {
+
+    // Monkey patch before you require http for the first time.
+    process.binding('http_parser').HTTPParser = require('http-parser-js').HTTPParser;
+
     var _ = require('underscore');
     var path = require('path');
     var fs = require('fs');
@@ -23,11 +27,11 @@
         CACHE_TTL_PAGE_404: 10 * 60,
 
         CLUSTER_WORKER_RESTART_ON_PERIOD: 8 * 3600 * 1000, // 8 hours.
-        CLUSTER_WORKER_RESTART_ON_MEMORY_USED: 500 * 1024 * 1024, // 500 MB.
-        CLUSTER_MAX_CPU_LOAD_TIME_IN_SECONDS: 20,   // if 20 seconds load over 95% - restart worker.
-        CLUSTER_MAX_CPU_LOAD_IN_PERCENT: 95,
+        CLUSTER_WORKER_RESTART_ON_MEMORY_USED: 120 * 1024 * 1024, // 120 MB.
 
         RESPONSE_TIMEOUT: 5 * 1000,
+
+        SHUTDOWN_TIMEOUT: 6 * 1000,
 
         USER_AGENT: "Iframely/" + version + " (+http://iframely.com/;)",
         VERSION: version,
@@ -47,6 +51,7 @@
             image_png: "image/png",
             image_svg: "image/svg",
             image_gif: "image/gif",
+            image_webp: "image/webp",
             video_mp4: "video/mp4",
             video_ogg: "video/ogg",
             video_webm: "video/webm"
@@ -78,7 +83,9 @@
             "height",
             "min-height",
             "max-height",
-            "aspect-ratio"
+            "aspect-ratio",
+            "padding-bottom",
+            "scrolling"
         ],
 
         R: {
@@ -177,15 +184,27 @@
         }
     };
 
-    var local_config_path = path.resolve(
-      __dirname,
-      "config." + (process.env.NODE_ENV || "local") + ".js"
+    var env_config_path = path.resolve(
+        __dirname,
+        "config." + (process.env.NODE_ENV || "local") + ".js"
     );
 
-    if (fs.existsSync(local_config_path)) {
-        var local = require(local_config_path);
-        _.extend(config, local);
+    var local_config_path = path.resolve(__dirname, "config.local.js");
+
+    var local;
+
+    // Try config by NODE_ENV.
+    if (fs.existsSync(env_config_path)) {
+
+        local = require(env_config_path);
+
+    } else if (fs.existsSync(local_config_path)) {
+        // Else - try local config.
+
+        local = require(local_config_path);
     }
+
+    _.extend(config, local);
 
     config.baseStaticUrl = config.baseAppUrl + config.relativeStaticUrl;
 

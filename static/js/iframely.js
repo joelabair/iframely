@@ -4,7 +4,7 @@
 
      Iframely consumer client lib.
 
-     Version 0.9.2
+     Version 0.9.10
 
      Fetches and renders iframely oebmed/2 widgets.
 
@@ -163,7 +163,8 @@
                 autoplay: options.autoplay,
                 ssl: options.ssl,
                 html5: options.html5,
-                iframe: options.iframe
+                iframe: options.iframe,
+                group: options.group
             },
             success: function(data, textStatus, jqXHR) {
                 cb(null, data, jqXHR);
@@ -201,7 +202,7 @@
                 cb((responseJSON && responseJSON.error) || jqXHR.status || errorThrown.message, responseJSON, jqXHR);
             }
         });
-    }
+    };
 
     function wrapContainer($element, data) {
 
@@ -210,6 +211,12 @@
         if (media && media.height && media.width && !media["aspect-ratio"]) {
             $element.attr('width', media.width);
             $element.attr('height', media.height);
+            return $element;
+        }
+
+        if (media && media.height && !media.width && !media["aspect-ratio"]) {
+            $element.css('width', '100%');
+            $element.css('height', media.height + 'px');
             return $element;
         }
 
@@ -231,11 +238,18 @@
             $container.css('padding-bottom', '56.25%');
         }
 
+        var $widthLimiterContainer = $('<div>')
+            .append($container);
+
         if (media) {
 
             if (media["aspect-ratio"]) {
 
                 $container.css('padding-bottom', Math.round(1000 * 100 / media["aspect-ratio"]) / 1000 + '%');
+
+                if (media["padding-bottom"]) {
+                    $container.css('padding-top', media["padding-bottom"] + 'px');
+                }
 
             } else {
 
@@ -250,19 +264,15 @@
 
             // Min/max width can be controlled by one more parent div.
             if (media["max-width"] || media["min-width"]) {
-                var $widthLimiterContainer = $('<div>')
-                    //.addClass("iframely-outer-container")
-                    .append($container);
                 ["max-width", "min-width"].forEach(function(attr) {
                     if (media[attr]) {
                         $widthLimiterContainer.css(attr, media[attr]);
                     }
                 });
-                $container = $widthLimiterContainer;
             }
         }
 
-        return $container;
+        return $widthLimiterContainer;
     }
 
     var renders = {
@@ -420,6 +430,10 @@
                     .attr('allowfullscreen', true)
                     .attr('webkitallowfullscreen', true)
                     .attr('mozallowfullscreen', true);
+
+                if (data.media && data.media.scrolling === 'no') {
+                    $iframe.attr('scrolling', 'no');
+                }
 
                 if (options && options.disableSizeWrapper) {
                     return $iframe;

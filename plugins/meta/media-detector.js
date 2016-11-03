@@ -1,6 +1,16 @@
+var utils = require('../links/utils');
+var _ = require('underscore');
+
 module.exports = {
 
-    getMeta: function(meta, url) {
+    getMeta: function(meta, url, whitelistRecord) {
+
+        var iframelyLinks = _.flatten(_.keys(meta).map(function(key) {
+            return utils.parseMetaLinks(key, meta[key], whitelistRecord);
+        }));
+        if (iframelyLinks.length) {
+            return;
+        }
 
         // Player.
 
@@ -12,17 +22,20 @@ module.exports = {
 
                 has_player = true;
             }
+            
+        } else {
+            if (meta.video_src || meta.video_type) {
+                has_player = true;
+            }
+            if (meta.medium === 'video') {
+                has_player = true;
+            }
         }
+
         if (meta.twitter) {
             if (meta.twitter.player || meta.twitter.stream) {
                 has_player = true;
             }
-        }
-        if (meta.video_src || meta.video_type) {
-            has_player = true;
-        }
-        if (meta.medium === 'video') {
-            has_player = true;
         }
 
         if (has_player) {

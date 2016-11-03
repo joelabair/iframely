@@ -3,9 +3,10 @@ var utils = require('../../lib/utils');
 module.exports = {
 
     re: [
-    	/^https?:\/\/tube\.geogebra\.org\/material\/\w+\/id\/(\d+)/i,
-    	/^https?:\/\/tube\.geogebra\.org\/m\/(\d+)/i,
-    	/^https?:\/\/tube\.geogebra\.org\/student\/m(\d+)/i
+    	/^https?:\/\/(?:tube|www)\.geogebra\.org\/material\/\w+\/id\/([a-zA-Z0-9]+)/i,
+    	/^https?:\/\/(?:tube|www)\.geogebra\.org\/m\/([a-zA-Z0-9]+)/i,
+    	/^https?:\/\/(?:tube|www)\.geogebra\.org\/student\/m([a-zA-Z0-9]+)/i,    	
+    	/^https?:\/\/(?:tube|www)\.geogebra\.org\/m\/([a-zA-Z0-9]+)/i    	
     ],
 
     mixins: [
@@ -57,6 +58,7 @@ module.exports = {
     tests: [
         "http://tube.geogebra.org/material/simple/id/106299",
         "http://tube.geogebra.org/m/60391",
-        "https://tube.geogebra.org/student/m29659"
+        "https://tube.geogebra.org/student/m29659",
+        "http://www.geogebra.org/m/141300"
     ]
 };

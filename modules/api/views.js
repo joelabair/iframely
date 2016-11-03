@@ -42,6 +42,21 @@ function getIntParam(req, param) {
     return v && parseInt(v);
 }
 
+function handleIframelyError(error, res, next) {
+
+    res.tryCacheError(error);
+
+    if (error == 404 || error.code == 'ENOTFOUND') {
+        return next(new utils.NotFound('Page not found'));
+    }
+
+    if (typeof error === "number") {
+        next(new utils.HttpError(error, "Requested page error: " + error));
+    } else {
+        next(new Error("Iframely error: " + error));
+    }
+}
+
 module.exports = function(app) {
 
     app.get('/iframely', function(req, res, next) {
@@ -56,7 +71,7 @@ module.exports = function(app) {
             return next(new Error("local domains not supported"));
         }
 
-        log('Loading /iframely for', uri);
+        log(req, 'Loading /iframely for', uri);
 
         async.waterfall([
 
@@ -77,14 +92,9 @@ module.exports = function(app) {
 
         ], function(error, result) {
 
+
             if (error) {
-
-                res.tryCacheError(error);
-
-                if (error == 404 || error.code == 'ENOTFOUND') {
-                    return next(new utils.NotFound('Page not found'));
-                }
-                return next(new Error("Requested page error: " + error));
+                return handleIframelyError(error, res, next);
             }
 
             if (result.safe_html) {
@@ -137,7 +147,9 @@ module.exports = function(app) {
                 autoplayMode: getBooleanParam(req, 'autoplay')
             });
 
-            if (req.query.group || CONFIG.GROUP_LINKS) {
+            var forceGroup = req.query.group ? getBooleanParam(req, 'group') : CONFIG.GROUP_LINKS;
+
+            if (forceGroup) {
                 var links = result.links;
                 var groups = {};
                 CONFIG.REL_GROUPS.forEach(function(rel) {
@@ -188,7 +200,7 @@ module.exports = function(app) {
             return next(new Error("local domains not supported"));
         }
 
-        log('Loading /reader for', uri);
+        log(req, 'Loading /reader for', uri);
 
         async.waterfall([
 
@@ -215,13 +227,7 @@ module.exports = function(app) {
         ], function(error, html) {
 
             if (error) {
-
-                res.tryCacheError(error);
-
-                if (error == 404 || error.code == 'ENOTFOUND') {
-                    return next(new utils.NotFound('Page not found'));
-                }
-                return next(new Error("Requested page error: " + error));
+                return handleIframelyError(error, res, next);
             }
 
             var htmlArray = (html || "").match(/.{1,8191}/g) || "";
@@ -251,7 +257,7 @@ module.exports = function(app) {
             return next(new Error("local domains not supported"));
         }
 
-        log('Loading /render for', uri);
+        log(req, 'Loading /render for', uri);
 
         async.waterfall([
 
@@ -293,19 +299,12 @@ module.exports = function(app) {
             }
 
         ], function(error, link) {
-
             if (error) {
-
-                res.tryCacheError(error);
-
-                if (error == 404 || error.code == 'ENOTFOUND') {
-                    return next(new utils.NotFound('Page not found'));
-                }
-                return next(new Error(error));
+                return handleIframelyError(error, res, next);
             }
 
             if (!link) {
-                return next(new utils.NotFound());
+                return next(new utils.NotFound('No render available'));
             }
 
             res.renderCached('embed-html.ejs', {
@@ -366,7 +365,7 @@ module.exports = function(app) {
             return next(new Error("local domains not supported"));
         }
 
-        log('Loading /oembed for', uri);
+        log(req, 'Loading /oembed for', uri);
 
         async.waterfall([
 
@@ -384,13 +383,7 @@ module.exports = function(app) {
         ], function(error, result) {
 
             if (error) {
-
-                res.tryCacheError(error);
-
-                if (error == 404 || error.code == 'ENOTFOUND') {
-                    return next(new utils.NotFound('Page not found'));
-                }
-                return next(new Error(error));
+                return handleIframelyError(error, res, next);
             }
 
             iframelyCore.sortLinks(result.links);

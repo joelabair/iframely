@@ -8,6 +8,9 @@
         baseAppUrl: "http://yourdomain.com",
         relativeStaticUrl: "/r",
 
+        // Or just skip built-in renders altogether
+        SKIP_IFRAMELY_RENDERS: true,
+
         // For legacy reasons the response format of Iframely open-source is
         // different by default as it does not group the links array by rel.
         // In order to get the same grouped ressonse as in Cloud API,
@@ -23,7 +26,8 @@
             // /^https?:\/\/yourdomain\.com\//,
         ],
 
-        port: 8061,
+        port: 8061, //can be overridden by PORT env var
+        host: 'localhost', //can be overridden by HOST env var
 
         // Optional SSL cert, if you serve under HTTPS. 
         /*
@@ -93,22 +97,39 @@
             params: {
                 show_posts: 0,
                 show_facepile: 0,
-                "maxwidth": 600
+                maxwidth: 600
             }
+        }, {
+            // match i=user or i=moment or i=timeline to configure these types invidually
+            // see params spec at https://dev.twitter.com/web/embedded-timelines/oembed
+            re: [/^https?:\/\/publish\.twitter\.com\/oembed\?i=user/i],
+            params: {
+                limit: 1,
+                maxwidth: 600
+            }
+        }, {
+            // Facebook https://developers.facebook.com/docs/plugins/oembed-endpoints
+            re: [/^https:\/\/www\.facebook\.com\/plugins\/\w+\/oembed\.json/i],
+            params: {
+                // Skip script tag and fb-root div.
+                omitscript: true
+            }
+         }],
+
+        /*
+        // Configure use of HTTP proxies as needed
+        PROXY: [{
+            re: [/^https?:\/\/www\.domain\.com/],
+            proxy_server: 'http://1.2.3.4:8080',
+            // user_agent: 'CHANGE YOUR AGENT'
         }],
+        */
 
         // Customize API calls to 3rd parties. At the very least - configure required keys.
         providerOptions: {
             "twitter": {
                 "max-width": 550,
                 "min-width": 250,
-
-                // Twitter rolled back to oEmbed v 1, their 1.1+oauth endpoint is no longer in the documentation
-                // consumer_key: 'INSERT YOUR VALUE',
-                // consumer_secret: 'INSERT YOUR VALUE',
-                // access_token: 'INSERT YOUR VALUE',
-                // access_token_secret: 'INSERT YOUR VALUE',
-
                 hide_media: false,
                 hide_thread: false,
                 omit_script: false,
@@ -173,7 +194,7 @@
                     }
                 }
             }
-            */            
+            */
         },
 
         // WHITELIST_WILDCARD, if present, will be added to whitelist as record for top level domain: "*"

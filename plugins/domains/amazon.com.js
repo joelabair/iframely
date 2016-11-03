@@ -3,8 +3,8 @@ var $ = require('cheerio');
 module.exports = {
 
     re: [
-        /^https?:\/\/www\.amazon\.(com|ca|com\.au|be|dk|de|es|fr|in|ie|it|nl|co\.nz|no|at|pt|ch|fi|se|ae|pl|co\.uk|co\.jp)\/([a-zA-Z0-9\-]+\/)?dp\/[a-zA-Z0-9\-]+/i,
-        /^https?:\/\/www\.amazon\.(com|ca|com\.au|be|dk|de|es|fr|in|ie|it|nl|co\.nz|no|at|pt|ch|fi|se|ae|pl|co\.uk|co\.jp)\/gp\/product\/[a-zA-Z0-9\-]+/i
+        /^https?:\/\/www\.amazon\.(com|ca|com\.au|be|dk|de|es|fr|in|ie|it|nl|co\.nz|no|at|pt|ch|fi|se|ae|pl|co\.uk|co\.jp)\/([a-zA-Z0-9\-%]+\/)?dp\/[a-zA-Z0-9\-]+/i,
+        /^https?:\/\/www\.amazon\.(com|ca|com\.au|be|dk|de|es|fr|in|ie|it|nl|co\.nz|no|at|pt|ch|fi|se|ae|pl|co\.uk|co\.jp)\/gp\/product\/[a-zA-Z0-9\-%]+/i
     ],
 
     provides: "__isAmazonImageNeeded",
@@ -31,7 +31,7 @@ module.exports = {
     },
 
     getData: function (meta) {
-        if ((meta.twitter && meta.twitter.image) || (meta.og && meta.og.image)) {
+        if (meta.twitter && meta.twitter.image) {
             return;
         } else {
             return {
@@ -40,12 +40,12 @@ module.exports = {
         }
     },
 
-    tests: [
-        "http://www.amazon.com/Vegucated/dp/B006LZSF8M/ref=sr_1_1?s=instant-video&ie=UTF8&qid=1372118186&sr=1-1&keywords=vegucated",
+    tests: [        
         "http://www.amazon.com/The-Whole-Truth-Shaw-Book-ebook/dp/B0011UCPM4/ref=pd_zg_rss_ts_b_17_6?ie=UTF8&tag=recomshop-22",
         "http://www.amazon.co.uk/Vegetable-Perfection-tasty-recipes-shoots/dp/1849757097/ref=asap_bc?ie=UTF8",
         "http://www.amazon.com/Tapestry-Hanging-Mandala-Tapestries-Bedspread/dp/B00ODVE012/ref=sr_1_75?s=furniture&ie=UTF8&qid=1450055989&sr=1-75&keywords=tapestry",
         "http://www.amazon.ca/The-Fight-Security-Failings-Political/dp/1250082986?tag=smarturl-ca-20",
-        "http://www.amazon.com/gp/product/B0057OC5O8/"
+        "http://www.amazon.com/gp/product/B0057OC5O8/",
+        "http://www.amazon.com/The-Borderland-A-Novel-Texas/dp/0786884932"
     ]
 };

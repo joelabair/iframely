@@ -10,7 +10,7 @@ module.exports = {
         "oembed-site",
         "oembed-title",
         "keywords",
-        "twitter-image",
+        // "twitter-image",
         "favicon"
     ],
 
@@ -22,7 +22,7 @@ module.exports = {
 
         if (!media_only && twitter.player) {
             links.push({
-                href: twitter.player.value || twitter.player,
+                href: (twitter.player.value || twitter.player).replace(/^https:\/\//, '//').replace(/\/twitter\/iframe$/, ''),
                 type: CONFIG.T.text_html,
                 rel: [CONFIG.R.player, CONFIG.R.twitter, CONFIG.R.html5, CONFIG.R.gifv],
                 "aspect-ratio": twitter.player.width / twitter.player.height
@@ -36,6 +36,14 @@ module.exports = {
             width: oembed.width,
             height: oembed.height
         });
+
+        links.push({
+            href: twitter.image && (twitter.image.src || twitter.image.url),
+            type: CONFIG.T.image, // keep it here, otherwise thumbnail may come up with GIF MIME type
+            rel: CONFIG.R.thumbnail,
+            width: oembed.width,
+            height: oembed.height
+        });        
 
         return links;
     },

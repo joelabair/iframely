@@ -1,15 +1,11 @@
+var re = /^https:\/\/medium\.com\/@?[\w-]+/i;
+
 module.exports = {
 
-    re: /^https:\/\/medium\.com\/@?[\w-]+/i,
+    re: re,
 
     mixins: [
-        "og-image",
-        "favicon",
-        "canonical",
-        "og-description",
-        "og-site",
-        "og-title",
-        "media-detector"
+        "*"
     ],
 
     getLinks: function(og, url) {
@@ -46,18 +42,8 @@ module.exports = {
         return links;
     },
 
-    tests: [{
-        page: 'https://medium.com/top-100',
-        selector: '.link--secondary'
-    }, {
-        page: 'https://medium.com/top-100',
-        selector: '.block-title a'
-    }, {
-        skipMixins: [
-            "media-detector" // as plugin covers not only articles
-        ]
-    },
+    tests: [
         "https://medium.com/@startswithabang",
-        "https://medium.com/better-humans"
+        "https://medium.com/hackerpreneur-magazine/nobody-s-heard-of-you-and-that-s-okay-82792dfecc12#.31za23rhx"
     ]
 };

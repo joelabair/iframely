@@ -7,34 +7,14 @@ module.exports = {
         "oembed-title",
         "oembed-author",
         "oembed-site",
-        "canonical",
         "domain-icon"
     ],
-
-    getMeta: function(meta) {
-
-        if (!meta.slideshare) {
-            return;
-        }
-
-        return {
-            category: meta.slideshare.category,
-            date: meta.slideshare.published,
-            views: meta.slideshare.view_count
-        };
-    },
 
     getLink: function(oembed, options, cb) {
 
 
         if (oembed.slide_image_baseurl && oembed.slide_image_baseurl_suffix) {
             var links = [];
-
-            var aspect = oembed.width / oembed.height;
-            // It is actually hardcoded to 4:3 + 38px for nav bar :(
-            // So we'll try to optimize it for option.maxwidth || 600px
-            // For this, we'll get the aspect of the first slide - we need it anyway
-
 
             var firstSlide = (/^\/\//.test(oembed.slide_image_baseurl) ? 'http:' : '') + oembed.slide_image_baseurl + '1' + oembed.slide_image_baseurl_suffix;
 
@@ -53,10 +33,6 @@ module.exports = {
                         width: data.width,
                         height: data.height
                     });
-
-                    var width = options.maxWidth || options.getProviderOptions('slideshare.width', 600);
-                    aspect = width / (width / (data.width / data.height) + 38);
-
                 }
 
                 var $container = $('<div>');
@@ -71,7 +47,8 @@ module.exports = {
                         href: $iframe.attr('src').replace('http:', ''),
                         type: CONFIG.T.text_html,
                         rel: [CONFIG.R.player, CONFIG.R.html5],
-                        "aspect-ratio": aspect
+                        "aspect-ratio": (data.width && data.height) ? data.width / data.height : oembed.width / oembed.height,
+                        "padding-bottom": 38
                     });
                 }
 
@@ -83,7 +60,7 @@ module.exports = {
                     height: data.height ? Math.round (oembed.thumbnail_width / (data.width / data.height)) : oembed.thumbnail_height
                 });
 
-                cb(null, links);                
+                cb(null, links);
 
             });
         }
