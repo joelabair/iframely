@@ -1,8 +1,9 @@
 #!/bin/sh
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export NODE_ENV=$NODE_ENV
 
-cd /home/joelbair/www/app.dvlp.sendsites.local/scripts/iframely/ && \
+cd $DIR && \
 rm -f out.log && \
 rm -f err.log && \
 rm -f /home/joelbair/.forever/iframely.log && \
