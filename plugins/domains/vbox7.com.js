@@ -1,7 +1,7 @@
 module.exports = {
 
     re: [        
-        /https?:\/\/(?:www\.)?vbox7\.com\/play:(\w+)/i
+        /https?:\/\/vbox7\.com\/play:(\w+)/i
     ],
 
     mixins: ["*"],
@@ -17,6 +17,6 @@ module.exports = {
     },
 
     tests: [
-        "http://www.vbox7.com/play:86abb51a7d?pos=src"
+        "http://vbox7.com/play:86abb51a7d?pos=src"
     ]
 };

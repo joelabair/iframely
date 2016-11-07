@@ -4,7 +4,7 @@
 
      Iframely consumer client lib.
 
-     Version 0.9.10
+     Version 0.9.7
 
      Fetches and renders iframely oebmed/2 widgets.
 
@@ -163,8 +163,7 @@
                 autoplay: options.autoplay,
                 ssl: options.ssl,
                 html5: options.html5,
-                iframe: options.iframe,
-                group: options.group
+                iframe: options.iframe
             },
             success: function(data, textStatus, jqXHR) {
                 cb(null, data, jqXHR);
@@ -202,7 +201,7 @@
                 cb((responseJSON && responseJSON.error) || jqXHR.status || errorThrown.message, responseJSON, jqXHR);
             }
         });
-    };
+    }
 
     function wrapContainer($element, data) {
 
@@ -211,12 +210,6 @@
         if (media && media.height && media.width && !media["aspect-ratio"]) {
             $element.attr('width', media.width);
             $element.attr('height', media.height);
-            return $element;
-        }
-
-        if (media && media.height && !media.width && !media["aspect-ratio"]) {
-            $element.css('width', '100%');
-            $element.css('height', media.height + 'px');
             return $element;
         }
 

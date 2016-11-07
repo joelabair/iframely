@@ -1,8 +1,20 @@
+var $ = require('cheerio');
+
+// TODO: support gallery: http://hyderphoto.smugmug.com/Daily-Photos/Daily-Photos/27429648_7XP8jg#!i=4106742422&k=zsmTVn9
+
 module.exports = {
 
     mixins: [
         "*"
     ],
+
+    getMeta: function (oembed) {
+
+        return {
+            media: 'player'
+        };
+
+    },
 
     getLink: function (oembed) {
 
@@ -30,16 +42,37 @@ module.exports = {
             });
 
         } else if (oembed.type === "rich") {
+            // iframe'd gallery
 
-            // do nothing, it is so broken
-            // if they fix it - we'll cover it via whitelist
+            var $container = $('<div>');
+
+            try {
+                $container.html(oembed.html);
+            } catch(ex) {}
+
+            var $iframe = $container.find('iframe');
+
+            if ($iframe.length == 1) {
+                links.push({
+                    href: $iframe.attr('src').replace(/^http:\/\//, '//') + "?width=100%&height=100%",
+                    type: CONFIG.T.text_html,
+                    rel: [CONFIG.R.player, CONFIG.R.oembed]
+                });
+            }
 
         } // else it's oembed link with no thumnbnail or other useful info.
         
         return links;
     },
 
-    tests: [
+    tests: [{
+        pageWithFeed: "http://www.smugmug.com/popular/today",
+        getUrl: function(url) {
+            return url.indexOf('smugmug.com/') > -1 ? url : null;
+        },
+        skipMethods: ["getLink"]
+    },
+        "http://www.smugmug.com/popular/all#!i=789708429&k=sPdffjw",
         "http://cedricwalter.smugmug.com/Computers/Joomla/i-726WRdK/A"
     ]
 };

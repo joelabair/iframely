@@ -322,7 +322,6 @@ function processUrl() {
     // 1) Fetch data.
     $.iframely.getPageData(uri, {
         debug: true,
-        group: false,
         mixAllWithDomainPlugin: $('[name="mixAllWithDomainPlugin"]').is(":checked"),
         refresh: $('[name="refresh"]').is(":checked")
     }, function(error, data, jqXHR) {

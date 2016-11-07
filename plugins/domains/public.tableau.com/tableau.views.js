@@ -2,6 +2,8 @@ var utils = require('../../../lib/utils');
 
 module.exports = {
 
+    mixins: ['domain-icon'],
+
     provides: 'tableau_image',
 
     getMeta: function (tableau) {
@@ -73,12 +75,6 @@ module.exports = {
             links.push(app);
 
             links.push(tableau_image);
-
-            links.push({
-                href: 'https://public.tableau.com/favicon.ico',
-                type: CONFIG.T.image,
-                rel: CONFIG.R.icon
-            });
 
             return links;
         }

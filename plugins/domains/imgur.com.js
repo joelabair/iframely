@@ -15,15 +15,14 @@ module.exports = {
         "twitter-title",
         "twitter-image",  // image for images, thumbnails for gallery
         "twitter-stream", // only for gifv
-        "oembed-site", 
-        "domain-icon"
+        "oembed-site"
     ],
     
     getLinks: function(urlMatch, oembed, twitter, options) {
 
         var links = [];
 
-        if (twitter.image && twitter.image.indexOf && twitter.image.indexOf(urlMatch[1]) > -1 && !twitter.player) {
+        if (twitter.image && twitter.image.indexOf && twitter.image.indexOf(urlMatch[1]) > -1) {
             links.push({
                 href: twitter.image,
                 type: CONFIG.T.image_jpeg,
@@ -43,6 +42,14 @@ module.exports = {
                     width: oembed.width,
                     type: CONFIG.T.text_html,
                     rel: [CONFIG.R.app, CONFIG.R.oembed, CONFIG.R.html5, CONFIG.R.inline, CONFIG.R.ssl]
+                });
+            } else {
+                links.push({
+                    href: "http://s.imgur.com/images/favicon-96x96.png",
+                    width: 96,
+                    height: 96,
+                    type: CONFIG.T.image_png,
+                    rel: CONFIG.R.icon
                 });
             }
         }

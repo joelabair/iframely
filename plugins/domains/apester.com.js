@@ -36,7 +36,7 @@ module.exports = {
             href: '//renderer.qmerce.com/interaction/' + urlMatch[1],
             type: CONFIG.T.text_html,
             rel: [CONFIG.R.survey, CONFIG.R.html5],
-            height: qmerce.data.size ? qmerce.data.size.height  : 400 // when "undefined" - no way to check the height :\
+            height: qmerce.data.size.height // do not check for "undefined" - let it fail if it happens
         }, {
             href: qmerce.image && qmerce.image.path && ('http://images.apester.com/' + qmerce.image.path.replace (/\//g, '%2F')),
             type: CONFIG.T.image,
@@ -59,7 +59,6 @@ module.exports = {
         "https://preview.qmerce.com/interaction/566e7dacd98c046319a768b4",
         "https://preview.qmerce.com/interaction/562a434547771a99601c3626",
         "http://renderer.qmerce.com/interaction/562146b041d4754d14603b18",
-        "http://renderer.qmerce.com/interaction/569388818089e8dd05aff3a8",
-        "https://renderer.qmerce.com/interaction/54d78df0a2eb4c424343c9f9"
+        "http://renderer.qmerce.com/interaction/569388818089e8dd05aff3a8"
     ]
 };
