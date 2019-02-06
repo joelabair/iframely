@@ -18,6 +18,9 @@ module.exports = {
         if (whitelistRecord.isAllowed('oembed.rich', "player")) {
             rels.push(CONFIG.R.player);
         }
+        if (whitelistRecord.isAllowed('oembed.rich', "summary")) {
+            rels.push(CONFIG.R.summary);
+        }        
         if (rels.length == 1) {
             rels.push(CONFIG.R.app);
         }
@@ -28,9 +31,6 @@ module.exports = {
         if (whitelistRecord.isAllowed('oembed.rich', "html5")) {
             rels.push(CONFIG.R.html5);
         }
-        if (whitelistRecord.isAllowed('oembed.rich', "summary")) {
-            rels.push(CONFIG.R.summary);
-        }
         rels.push ("allow"); // otherwise, rich->players get denied by oembed:video whitelist record
 
 
@@ -39,9 +39,9 @@ module.exports = {
             type: CONFIG.T.text_html
         };
 
-        // allow encoded entities if they start from $lt; and end with &gt;
+        // allow encoded entities if they start from $lt;
         var html = oembed.html5 || oembed.html; 
-        if (/^&lt;.*&gt;$/i.test(html)) {
+        if (/^&lt;$/i.test(html)) {
             html = entities.decodeHTML(html);
         }
 
@@ -91,6 +91,8 @@ module.exports = {
             } else {
                 widget['aspect-ratio'] = oembed.width / oembed.height;
             }
+        } else if (whitelistRecord.isAllowed('oembed.rich', 'horizontal')) {
+                widget.height = oembed.height || $iframe.attr('height');            
         } else {
             widget.width = oembed.width;
             widget.height = oembed.height

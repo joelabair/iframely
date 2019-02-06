@@ -1,3 +1,5 @@
+const decodeHTML5 = require('entities').decodeHTML5;
+
 module.exports = {
 
     provides: 'dailymailVideo',
@@ -13,10 +15,10 @@ module.exports = {
         }
     },
 
-    getMeta: function(dailymailVideo) {
+    getMeta: function(dailymailVideo, decode) {
         return {
-            title: dailymailVideo.title, 
-            description: dailymailVideo.descr
+            title: decodeHTML5(decode(dailymailVideo.title)),
+            description: decodeHTML5(decode(dailymailVideo.descr))
         }
     },
 
@@ -37,7 +39,9 @@ module.exports = {
         }];
     },    
 
-    tests: [
+    tests: [{
+        noFeeds: true
+    },
         "http://www.dailymail.co.uk/tvshowbiz/article-2885993/A-look-unconventional-13-year-relationship-Helena-Bonham-Carter-Tim-Burton-movies-made.html#v-1467332342001"
     ]
 };

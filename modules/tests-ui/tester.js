@@ -1,4 +1,4 @@
-GLOBAL.CONFIG = require('../../config');
+global.CONFIG = require('../../config');
 
 if (!CONFIG.tests) {
     console.error('Tests not started: CONFIG.tests not configured.');
@@ -177,7 +177,7 @@ function processPluginTests(pluginTest, plugin, count, cb) {
 
                 cb(null, [tests]);
 
-            } else {
+            } else if (_.isArray(tests)) {
 
                 async.map(tests.filter(function(x) {return x;}), function(url, cb) {
 
@@ -221,6 +221,9 @@ function processPluginTests(pluginTest, plugin, count, cb) {
                         cb(null, null);
                     }
                 }, cb);
+
+            } else {
+                cb(null, null);
             }
         },
 
@@ -291,8 +294,10 @@ function processPluginTests(pluginTest, plugin, count, cb) {
                     });
 
                     if (error) {
-                        if (error.indexOf && error.indexOf("timeout") > -1 || (error == 404)) {
-                            logEntry.warnings = [error];
+                        if (error.code === "timeout") {
+                            logEntry.warnings = [error.code];
+                        } else if ((error.responseCode == 404)) {
+                            logEntry.warnings = [error.responseCode];
                         } else if (error.stack) {
                             logEntry.errors_list = [error.stack];
                         } else {
@@ -335,7 +340,7 @@ function processPluginTests(pluginTest, plugin, count, cb) {
 
                         // Error on unused mandatory methods.
                         if (unusedMethods.mandatory.length > 0) {
-                            logEntry.errors_list = logEntry.errors || [];
+                            logEntry.errors_list = logEntry.errors_list || [];
                             unusedMethods.mandatory.forEach(function(m) {
                                 var inError = _.find(errors, function(error) {
                                     return error.indexOf(m) > -1;
@@ -373,6 +378,7 @@ function processPluginTests(pluginTest, plugin, count, cb) {
 
                 setTimeout(function() {
                     iframely(url, {
+                        v: '1.3',
                         debug: true,
                         refresh: true,
                         readability: true,

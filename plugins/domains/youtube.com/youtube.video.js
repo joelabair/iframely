@@ -1,4 +1,6 @@
-var cheerio = require('cheerio');
+const cheerio = require('cheerio');
+const querystring = require('querystring');
+const _ = require('underscore');
 
 module.exports = {
 
@@ -9,7 +11,7 @@ module.exports = {
         /^https?:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]+)/i,
         /^https?:\/\/www\.youtube\.com\/v\/([a-zA-Z0-9_-]+)/i,
         /^https?:\/\/www\.youtube\.com\/user\/[a-zA-Z0-9_-]+\/?\?v=([a-zA-Z0-9_-]+)/i,
-        /^https?:\/\/www\.youtube-nocookie\.com\/v\/([a-zA-Z0-9_-]+)/i
+        /^https?:\/\/www\.youtube-nocookie\.com\/(?:v|embed)\/([a-zA-Z0-9_-]+)/i
     ],
 
     mixins: ["domain-icon"],
@@ -62,6 +64,7 @@ module.exports = {
                         title: entry.snippet && entry.snippet.title,
                         uploaded: entry.snippet && entry.snippet.publishedAt,
                         uploader: entry.snippet && entry.snippet.channelTitle,
+                        channelId: entry.snippet && entry.snippet.channelId,
                         description: entry.snippet && entry.snippet.description,
                         likeCount: entry.statistics && entry.statistics.likeCount,
                         dislikeCount: entry.statistics && entry.statistics.dislikeCount,
@@ -82,7 +85,10 @@ module.exports = {
                     }
 
                     if (gdata.uploadStatus === "rejected") {
-                        cb({responseStatusCode: 410});
+                        cb({
+                            responseStatusCode: 410,
+                            message: "The video has been removed. Reason: " + (entry.status && entry.status.rejectionReason || 'not given')
+                        });
                     } else {
                         cb(null, {
                             youtube_video_gdata: gdata
@@ -113,13 +119,15 @@ module.exports = {
             dislikes: youtube_video_gdata.dislikeCount,
             views: youtube_video_gdata.viewCount,
             media: 'player', 
-            site: "YouTube"
+            site: "YouTube",
+            canonical: "https://www.youtube.com/watch?v=" + youtube_video_gdata.id,
+            author_url: "https://www.youtube.com/" + (youtube_video_gdata.channelId  ? "channel/" + youtube_video_gdata.channelId : "user/" + youtube_video_gdata.uploader)
         };
     },
 
     getLinks: function(url, youtube_video_gdata, options) {
 
-        var params = options.getProviderOptions('youtube.get_params', '');
+        var params = querystring.parse(options.getProviderOptions('youtube.get_params', '').replace(/^\?/, ''));
 
         /** Extract ?t=12m15s, ?t=123, ?start=123, ?stop=123, ?end=123
         */
@@ -139,16 +147,22 @@ module.exports = {
                     time += 1 * s[1];
                 }
                 
-                params = params + (params.indexOf ('?') > -1 ? "&": "?") + "start=" + (time ? time : start[1]);
+                params.start = time ? time : start[1];
             }
 
             if (end) {
-                params = params + (params.indexOf ('?') > -1 ? "&": "?") + "end=" + end[1];
+                params.end = end[1];
             }
         } catch (ex) {/* and ignore */}
         // End of time extractions
 
-        var autoplay = params + (params.indexOf ('?') > -1 ? "&": "?") + "autoplay=1";
+        if (options.getProviderOptions('players.playerjs', false) || options.getProviderOptions('players.autopause', false)) {
+            params.enablejsapi = 1;
+        }
+
+        if (options.getProviderOptions('locale', false)) {
+            params.hl = options.getProviderOptions('locale', 'en-US').replace('_', '-');
+        }
 
         // Detect widescreen videos. YouTube API used to have issues with returing proper aspect-ratio.
         var widescreen = youtube_video_gdata.hd || (youtube_video_gdata.thumbnails && youtube_video_gdata.thumbnails.maxres != null);
@@ -166,7 +180,6 @@ module.exports = {
             }
         }
         // End of widescreen check
-        
 
         var links = [{
             href: youtube_video_gdata.thumbnails && youtube_video_gdata.thumbnails.mq && youtube_video_gdata.thumbnails.mq.url,
@@ -177,30 +190,29 @@ module.exports = {
         }];
 
         if (youtube_video_gdata.embeddable) {
-            links.push({
-                href: 'https://www.youtube.com/embed/' + youtube_video_gdata.id + params,
-                rel: [CONFIG.R.player, CONFIG.R.html5],
-                type: CONFIG.T.text_html,
-                "aspect-ratio": widescreen ? 16 / 9 : 4 / 3
-            }); 
+            var qs = querystring.stringify(params);
+            if (qs !== '') {qs = '?' + qs}
+
+            var domain = /^https?:\/\/www\.youtube-nocookie\.com\//i.test(url) || options.getProviderOptions('youtube.nocookie', false) ? 'youtube-nocookie' : 'youtube';
 
             links.push({
-                href: 'https://www.youtube.com/embed/' + youtube_video_gdata.id + autoplay,
-                rel: [CONFIG.R.player, CONFIG.R.html5, CONFIG.R.autoplay],
+                href: 'https://www.' + domain + '.com/embed/' + youtube_video_gdata.id + qs,
+                rel: [CONFIG.R.player, CONFIG.R.html5],
                 type: CONFIG.T.text_html,
-                "aspect-ratio": widescreen ? 16 / 9 : 4 / 3
-            });
+                "aspect-ratio": widescreen ? 16 / 9 : 4 / 3,
+                autoplay: "autoplay=1"
+            }); 
+        } else {
+            links.push({message: (youtube_video_gdata.uploader || "Uploader of this video") +  " disabled embedding on other sites."});
         }
 
         if (youtube_video_gdata.thumbnails && youtube_video_gdata.thumbnails.maxres) {
             links.push({
                 href: youtube_video_gdata.thumbnails.maxres.url,
                 rel: CONFIG.R.thumbnail,
-                type: CONFIG.T.image_jpeg
-                // remove width so that image is checked for 404 as well 
-                // - there is no other way to make sure image is accurate AND exists.
-                // width: 1280,  // sometimes the sizes are 1920x1080, but it is impossible to tell based on API. 
-                // height: 720   // Image load will take unnecessary time, so we hard code the size since aspect ratio is the same
+                type: CONFIG.T.image_jpeg,
+                width: youtube_video_gdata.thumbnails.maxres.width, 
+                height: youtube_video_gdata.thumbnails.maxres.height
             });
         } 
 

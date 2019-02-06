@@ -1,6 +1,9 @@
 (function() {
     var config = {
 
+        // Specify a path for custom plugins. Custom plugins will override core plugins.
+        // CUSTOM_PLUGINS_PATH: __dirname + '/yourcustom-plugin-folder',
+
         DEBUG: false,
         RICH_LOG_ENABLED: false,
 
@@ -13,9 +16,9 @@
 
         // For legacy reasons the response format of Iframely open-source is
         // different by default as it does not group the links array by rel.
-        // In order to get the same grouped ressonse as in Cloud API,
+        // In order to get the same grouped response as in Cloud API,
         // add `&group=true` to your request to change response per request
-        // or set `groupLinks` in your config to `true` for a global change.
+        // or set `GROUP_LINKS` in your config to `true` for a global change.
         GROUP_LINKS: true,
 
         // Number of maximum redirects to follow before aborting the page
@@ -26,10 +29,19 @@
             // /^https?:\/\/yourdomain\.com\//,
         ],
 
-        port: 8061, //can be overridden by PORT env var
-        host: 'localhost', //can be overridden by HOST env var
+        /*
+        // Used to pass parameters to the generate functions when creating HTML elements
+        // disableSizeWrapper: Don't wrap element (iframe, video, etc) in a positioned div
+        GENERATE_LINK_PARAMS: {
+            disableSizeWrapper: true
+        },
+        */
 
-        // Optional SSL cert, if you serve under HTTPS. 
+        port: 8061, //can be overridden by PORT env var
+        host: '0.0.0.0',    // Dockers beware. See https://github.com/itteco/iframely/issues/132#issuecomment-242991246
+                            //can be overridden by HOST env var
+
+        // Optional SSL cert, if you serve under HTTPS.
         /*
         ssl: {
             key: require('fs').readFileSync(__dirname + '/key.pem'),
@@ -107,6 +119,7 @@
                 limit: 1,
                 maxwidth: 600
             }
+        /*
         }, {
             // Facebook https://developers.facebook.com/docs/plugins/oembed-endpoints
             re: [/^https:\/\/www\.facebook\.com\/plugins\/\w+\/oembed\.json/i],
@@ -114,6 +127,7 @@
                 // Skip script tag and fb-root div.
                 omitscript: true
             }
+        */
          }],
 
         /*
@@ -121,18 +135,31 @@
         PROXY: [{
             re: [/^https?:\/\/www\.domain\.com/],
             proxy_server: 'http://1.2.3.4:8080',
-            // user_agent: 'CHANGE YOUR AGENT'
+            user_agent: 'CHANGE YOUR AGENT',
+            headers: {
+                // HTTP headers
+                // Overrides previous params if overlapped.
+            },
+            request_options: {
+                // Refer to: https://github.com/request/request
+                // Overrides previous params if overlapped.
+            }
         }],
         */
 
         // Customize API calls to 3rd parties. At the very least - configure required keys.
         providerOptions: {
+            locale: "en_US",    // ISO 639-1 two-letter language code, e.g. en_CA or fr_CH. 
+                                // Will be added as highest priotity in accept-language header with each request. 
+                                // Plus is used in FB, YouTube and perhaps other plugins
             "twitter": {
                 "max-width": 550,
                 "min-width": 250,
                 hide_media: false,
                 hide_thread: false,
                 omit_script: false,
+                center: false,
+                // dnt: true,                
                 cache_ttl: 100 * 365 * 24 * 3600 // 100 Years.
             },
             readability: {
@@ -148,7 +175,7 @@
                 // media_only: true     // disables status embeds for images and videos - will return plain media
             },
             google: {
-                // https://developers.google.com/maps/documentation/embed/guide#api_key                
+                // https://developers.google.com/maps/documentation/embed/guide#api_key
                 maps_key: "INSERT YOUR VALUE"
             },
 
@@ -157,6 +184,7 @@
             camoProxy: {
                 camo_proxy_key: "INSERT YOUR VALUE",
                 camo_proxy_host: "INSERT YOUR VALUE"
+                // ssl_only: true // will only proxy non-ssl images
             },
             */
 
@@ -169,7 +197,7 @@
                 get_params: "?rel=0&showinfo=1"     // https://developers.google.com/youtube/player_parameters
             },
             vimeo: {
-                get_params: "?byline=0&badge=0"     // http://developer.vimeo.com/player/embedding
+                get_params: "?byline=0&badge=0"     // https://developer.vimeo.com/player/embedding
             },
 
             /*
@@ -187,7 +215,7 @@
                     album: {
                         height: 472,
                         'max-width': 700
-                    }, 
+                    },
                     track: {
                         height: 120,
                         'max-width': 700
@@ -203,7 +231,7 @@
         // More about format: https://iframely.com/docs/qa-format
 
         /*
-        WHITELIST_WILDCARD: {  
+        WHITELIST_WILDCARD: {
               "twitter": {
                 "player": "allow",
                 "photo": "deny"

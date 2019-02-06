@@ -1,7 +1,7 @@
 
 module.exports = {
 
-    re: /^https?:\/\/(?:www\.)?pinterest\.com\/pin\/(\d+)/i,
+    re: /^https?:\/\/(?:\w{2,3}\.)?pinterest(?:\.com?)?\.\w{2,3}\/pin\/(\d+)/i,
 
     mixins: [
         "*"
@@ -15,27 +15,30 @@ module.exports = {
 
         return {
             type: CONFIG.T.text_html,
-            rel: [CONFIG.R.app, CONFIG.R.ssl, CONFIG.R.html5],
+            rel: [CONFIG.R.app, CONFIG.R.ssl, CONFIG.R.inline, CONFIG.R.html5],
             template: "pinterest.widget",
             template_context: {
-                url: url,
+                url: og.url || url,
                 title: "Pinterest Image",
                 type: "embedPin",
                 width: null,
                 height: null,
                 pinWidth: null
-            }
+            },
+            'max-width': 600
         };
     },
 
-    getData: function (og) {
+    getData: function (og, options) {
 
         if (og.see_also && /^https?:\/\/(?:www\.)?(youtube|vimeo|soundcloud|ted|dailymotion)\.com\//i.test(og.see_also)) {
 
             return {
-                __promoUri: og.see_also
+                __promoUri: {
+                    url: og.see_also,
+                    rel: 'No rel=promo is required' // this field is just for debugging here. Not required
+                }
             };
-
         }
 
     },

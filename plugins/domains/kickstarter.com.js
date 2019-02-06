@@ -85,7 +85,8 @@ module.exports = {
                     type: CONFIG.T.text_html,
                     rel: [CONFIG.R.app, CONFIG.R.oembed, CONFIG.R.html5],
                     width: oembed.width,
-                    height: oembed.height
+                    height: oembed.height,
+                    scrolling: 'no'
                 }, {
                     href: oembed.thumbnail_url,
                     rel: [CONFIG.R.thumbnail, CONFIG.R.oembed],
@@ -101,16 +102,16 @@ module.exports = {
     },
 
     tests: [{
-        page: "http://www.kickstarter.com/discover/popular?ref=home_popular",
-        selector: ".project-title a",
+        noFeeds: true,
         skipMixins: [
             "twitter-player",
-            "og-video"
+            "og-video",
+            "favicon"
         ]
     },
         "http://www.kickstarter.com/projects/1104350651/taktik-premium-protection-system-for-the-iphone",
         "https://www.kickstarter.com/projects/1578116861/toejam-and-earl-back-in-the-groove",
-        "https://www.kickstarter.com/projects/sparkdevices/spark-electron-cellular-dev-kit-with-a-simple-data/posts/1148266",
+        //"https://www.kickstarter.com/projects/sparkdevices/spark-electron-cellular-dev-kit-with-a-simple-data/posts/1148266",
         "https://www.kickstarter.com/projects/1818505613/codeybot-new-robot-who-teaches-coding?ref=home_potd"
     ]
 };

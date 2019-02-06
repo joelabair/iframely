@@ -1,21 +1,20 @@
 module.exports = {
 
     re: [
-        /https?:\/\/imgur\.com\/t\/\w+\/(\w+).*/i,
+        /https?:\/\/imgur\.com\/t\/[a-zA-Z0-9\-_&]+\/(\w+).*/i,        
         /https?:\/\/imgur\.com\/topic\/[a-zA-Z0-9\-_&]+\/(\w+).*/i,
         /https?:\/\/imgur\.com\/(?:\w+\/)?(\w+).*/i,
     ],
 
-    provides: ["oembedLinks"],
-
     mixins: [
-        "favicon",
         "canonical",
         "oembed-author",
         "twitter-title",
         "twitter-image",  // image for images, thumbnails for gallery
         "twitter-stream", // only for gifv
-        "oembed-site"
+        "twitter-description",
+        "oembed-site", 
+        "domain-icon"
     ],
     
     getLinks: function(urlMatch, oembed, twitter, options) {
@@ -39,7 +38,7 @@ module.exports = {
             if (!media_only || isGallery) {
                 links.push({
                     html: oembed.html,
-                    width: oembed.width,
+                    'max-width': oembed.width,
                     type: CONFIG.T.text_html,
                     rel: [CONFIG.R.app, CONFIG.R.oembed, CONFIG.R.html5, CONFIG.R.inline, CONFIG.R.ssl]
                 });
@@ -57,33 +56,28 @@ module.exports = {
         return links;
     },
 
-    getData: function (url, urlMatch, meta, cb) {
+    getData: function(oembedError, url, og, options, cb) {
 
-        var isGallery = false;
-        var isA = url.indexOf('/a/') > -1;
+        if (og.url && og.url !== url &&
+            (!options.redirectsHistory || options.redirectsHistory.indexOf(og.url) === -1)) {
 
-        var twitter = meta.twitter;
+            cb ({
+                redirect: og.url
+            });            
 
-        if (twitter.image && twitter.image.indexOf && twitter.image.indexOf(urlMatch[1]) > -1) {
         } else {
-            isGallery = twitter.card !== 'player';
+            cb(null);
         }
+    },    
 
-        var links =  ['json', 'xml'].map(function(format) {
-            return {
-                href: "http://api.imgur.com/oembed." + format + "?url=http://imgur.com/" + (isGallery || isA ? 'a/' : '') + urlMatch[1],
-                rel: 'alternate',
-                type: 'application/' + format + '+oembed'
-            }
-        });
-
-        cb(null, {
-            oembedLinks: links
-        });
-    },
 
     tests: [{
-        pageWithFeed: "http://imgur.com/"
+        page: "http://imgur.com/",
+        selector: "a.image-list-link"
+    }, {
+        skipMethods: [
+            "getData"
+        ]
     }, {
         skipMixins: [
             "twitter-image",
@@ -101,7 +95,6 @@ module.exports = {
         "https://imgur.com/gallery/kkEzJsa",
         "http://imgur.com/t/workout/HFwjGoF",
         "http://imgur.com/t/water/ud7YwQp",
-        "http://imgur.com/topic/The_Oscars_&_Movies/YFQo6Vl",
-        "http://imgur.com/a/G1oOO"
+        "http://imgur.com/t/The_Oscars_&_Movies/YFQo6Vl"
     ]
 };

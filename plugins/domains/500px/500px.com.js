@@ -32,7 +32,7 @@ module.exports = {
                     canonical: url
                 },
                 type: CONFIG.T.text_html,
-                rel: [CONFIG.R.image, CONFIG.R.inline, CONFIG.R.html5, CONFIG.R.ssl],
+                rel: [CONFIG.R.image, CONFIG.R.html5, CONFIG.R.ssl, CONFIG.R.inline],
                 "aspect-ratio": oembed.width / oembed.height
 
             }
@@ -40,7 +40,7 @@ module.exports = {
     },
 
     tests: [{
-        pageWithFeed: "https://500px.com/flow"
+        feed: "https://500px.com/upcoming.rss"
     },
         "http://500px.com/photo/13541787?from=upcoming",
         "https://500px.com/photo/56891080/frozen-by-ryan-pendleton?ctx_page=1&from=user&user_id=116369"

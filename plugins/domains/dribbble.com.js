@@ -1,19 +1,28 @@
 module.exports = {
 
     re: [
-        /^https?:\/\/dribbble\.com\/shots\/([a-zA-Z0-9\-]+)/i
+        /^https?:\/\/dribbble\.com\/shots\/([a-zA-Z0-9\-]+)/i,
+        /^https?:\/\/dribbble\.com\/([a-zA-Z0-9\-]+)(?:\?[^\/]+)?$/i
     ],
 
-    mixins: ["*"],
+    // required to bypass canonical=gif for gif shots
+    mixins: [
+        "favicon",
+        "og-description",
+        "twitter-labels",
+        "og-site",
+        "theme-color",
+        "og-title"
+    ],
 
     getLink: function(meta, urlMatch, cb) {
 
         if (meta.og && meta.og.image) {
 
             cb(null, {
-                href: meta.og.image,
+                href: meta.og.image.url || meta.og.image,
                 type: CONFIG.T.image,
-                rel: CONFIG.R.image,
+                rel: meta.og.type === 'profile'? [CONFIG.R.image, CONFIG.R.promo] : CONFIG.R.image,
                 width: meta.twitter.image.width,
                 height: meta.twitter.image.height
             });
@@ -36,6 +45,7 @@ module.exports = {
             "og-description"
         ]
     },
-        "http://dribbble.com/shots/1311850-Winter-Is-Coming"
+        "http://dribbble.com/shots/1311850-Winter-Is-Coming",
+        "http://dribbble.com/shots/5030547-Chairs-Store-App"
     ]
 };

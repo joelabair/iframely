@@ -1,7 +1,7 @@
 module.exports = {
 
     re: [
-        /^https?:\/\/([a-z]+\.)?([a-z]+\.)?\w+\/watch\/[a-zA-Z0-9]+/i
+        /^https?:\/\/([a-z]+\.)?([a-z]+\.)?\w+(\/sharing)?\/watch\/[a-zA-Z0-9\-\_]+\/?(?:\?[^\/]+)?$/i
     ],
 
     provides: "__isVidyard",
@@ -15,13 +15,14 @@ module.exports = {
         if (/^https:\/\/play\.vidyard\.com\//i.test(twitter && twitter.player && twitter.player.value)) {
 
             return [{
-                href: twitter.player.value,
-                type: CONFIG.T.text_html,
+                href: twitter.player.value.replace('autoplay=1', 'autoplay=0'),
+                accept: CONFIG.T.text_html,
                 rel: [CONFIG.R.player, CONFIG.R.html5],
-                'aspect-ratio': twitter.player.width / twitter.player.height                
+                'aspect-ratio': twitter.player.width / twitter.player.height,
+                autoplay: "autoplay=1"
             }, {
-                href: twitter.player.stream,
-                type: CONFIG.T.mp4,
+                href: twitter.player.stream && (twitter.player.stream.value || twitter.player.stream),
+                accept: CONFIG.T.video_mp4,
                 rel: CONFIG.R.player,
                 'aspect-ratio': twitter.player.width / twitter.player.height                
             }];
@@ -30,7 +31,7 @@ module.exports = {
     },
 
     getData: function(meta) {
-        if (meta.generator === 'vidyard.com' && meta.og && meta.og.site_name === 'Vidyard') {
+        if (meta.generator === 'vidyard.com' && meta.twitter && meta.twitter.player) {
             return {
                 __isVidyard: true
             }
@@ -43,7 +44,7 @@ module.exports = {
         "http://video.sencha.com/watch/a2v2Jjy6USsfYXxovNPzVD",
         "http://videos.zignallabs.com/watch/CJb9FicSup-0WgTQE_7RHQ",
         "http://videos.tenable.com/watch/vPyeFncWD-hDT9Yzt8H92g",
-        "https://videos.mulesoft.com/watch/CMvECRRnLFGhRrxRtbsJnD", 
-        "http://video.verint.com/watch/yeGzTrpJ6lIPGYyx-i4aYw"
+        "http://video.verint.com/watch/yeGzTrpJ6lIPGYyx-i4aYw",
+        "http://watch.ultimatesoftware.com/sharing/watch/Cc32kg1FgX3faGhW527Y8o"
     ]
 };

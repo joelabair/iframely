@@ -1,10 +1,12 @@
+const decodeHTML5 = require('entities').decodeHTML5;
+
 module.exports = {
 
     provides: 'schemaVideoObject',
 
-    getData: function(cheerio, __allowEmbedURL) {
+    getData: function(cheerio, decode, __allowEmbedURL) {
 
-        var videoObjectSchema = 'VideoObject';
+        var videoObjectSchema = 'Object';
 
         var $scope = cheerio('[itemscope][itemtype*="' + videoObjectSchema + '"]');
 
@@ -29,7 +31,7 @@ module.exports = {
 
                 var key = $el.attr('itemprop');
                 if (key) {
-                    var value = $el.attr('content') || $el.attr('href');
+                    var value = decodeHTML5(decode($el.attr('content') || $el.attr('href')));
                     result[key] = value;
                 }
             });
@@ -37,32 +39,57 @@ module.exports = {
             return {
                 schemaVideoObject: result
             };
+
+        } else {
+
+            // let's try to find ld+json in the body
+            var $script = cheerio('script[type="application/ld+json"]:contains("embed")'); // embedURL can be embedurl, embedUrl, etc.
+
+            if ($script.length === 1) {
+
+                try {
+
+                    var json = JSON.parse($script.text());
+
+                    if (json['@type']) {
+                        ld = {};
+                        ld[json['@type'].toLowerCase()] = json;
+
+                        return {
+                            ld: ld
+                        }
+                    }
+
+                } catch (ex) {
+                    // broken json, c'est la vie
+                }
+            }
+
         }
     },
 
-    // TODO: Duration (convert format PY0M0D0TH0M2S36 into ours)
+    getLinks: function(schemaVideoObject, whitelistRecord) {
 
-    getLink: function(schemaVideoObject, whitelistRecord) {
+        if (!whitelistRecord.isAllowed('html-meta.embedURL')) {return;}
 
-        if (schemaVideoObject.embedURL || schemaVideoObject.embedUrl) {
+        var links = [];
+        
+        var thumbnailURL = schemaVideoObject.thumbnail || schemaVideoObject.thumbnailURL || schemaVideoObject.thumbnailUrl || schemaVideoObject.thumbnailurl;
+        if (thumbnailURL) {
+            links.push({
+                href: thumbnailURL,
+                rel: CONFIG.R.thumbnail,
+                type: CONFIG.T.image            
+            });
+        }
 
-            var type = CONFIG.T.maybe_text_html;
+        var href = schemaVideoObject.embedURL || schemaVideoObject.embedUrl || schemaVideoObject.embedurl;     
 
-            if (schemaVideoObject.playerType) {
-                if (schemaVideoObject.playerType.toLowerCase().indexOf('Flash') > -1) {
-                    type = CONFIG.T.flash;
-                }
-            } else if (schemaVideoObject.encodingFormat) {
-                if (schemaVideoObject.encodingFormat.toLowerCase().indexOf('mp4') > -1) {
-                    type = CONFIG.T.video_mp4;
-                }                
-            }            
-
-            var href = schemaVideoObject.embedURL || schemaVideoObject.embedUrl;
+        if (href) {
             var player = {
                 href: whitelistRecord.isAllowed('html-meta.embedURL', CONFIG.R.ssl) ? href.replace(/^http:\/\//i, '//') : href,
                 rel: [CONFIG.R.player],
-                type: type
+                accept: whitelistRecord.isDefault ? ['video/*', CONFIG.T.stream_apple_mpegurl, CONFIG.T.stream_x_mpegurl] : [CONFIG.T.text_html, CONFIG.T.flash, 'video/*', CONFIG.T.stream_apple_mpegurl, CONFIG.T.stream_x_mpegurl]
             };
 
             if (whitelistRecord.isAllowed('html-meta.embedURL', CONFIG.R.html5)) {
@@ -79,12 +106,20 @@ module.exports = {
                 player.height = schemaVideoObject.height;
             }
 
-            return [player, {
-                href: schemaVideoObject.thumbnail || schemaVideoObject.thumbnailURL || schemaVideoObject.thumbnailUrl,
-                rel: CONFIG.R.thumbnail,
-                type: CONFIG.T.image            
-            }]
+            links.push(player);
         }
+
+        var contentURL = schemaVideoObject.contentURL || schemaVideoObject.contentUrl || schemaVideoObject.contenturl;
+        if (contentURL) {
+            links.push({
+                href: contentURL,
+                accept: ['video/*', CONFIG.T.stream_apple_mpegurl, CONFIG.T.stream_x_mpegurl], // detects and validates mime type
+                rel: CONFIG.R.player, // HTML5 will come from mp4, if that's the case
+                'aspect-ratio': schemaVideoObject.height ? schemaVideoObject.width / schemaVideoObject.height : CONFIG.DEFAULT_ASPECT_RATIO
+            });
+        }
+
+        return links;
     }
 
 };

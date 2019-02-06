@@ -1,27 +1,29 @@
 module.exports = {
 
     re: [
-        /^https?:\/\/www\.twitch\.tv\/([a-zA-Z0-9_]+)$/i
+        /^https?:\/\/(?:www\.|go\.)?twitch\.tv\/[a-zA-Z0-9_]+\/v\/(\d+)/i,
+        /^https?:\/\/(?:www\.|go\.)?twitch\.tv\/videos?\/(\d+)/i
     ],
 
     mixins: [
         "*"
     ],
 
-    getLink: function (urlMatch, og) {
-
-        if (og.video && og.video.secure_url) {
-            return {
-                href: "//player.twitch.tv/?channel=" + urlMatch[1],
-                type: CONFIG.T.text_html,
-                rel: [CONFIG.R.player, CONFIG.R.autoplay, CONFIG.R.html5],
-                "aspect-ratio": og.video.width / og.video.height
-            };
+    getMeta: function (oembed) {
+        return {
+            date: oembed.created_at,
+            category: oembed.game,
+            duration: oembed.video_length,
+            canonical: oembed.request_url,
+            views: oembed.view_count
         }
     },
 
-    tests: [
-        "https://www.twitch.tv/imaqtpie",
-        "http://www.twitch.tv/adultswim"
+    // plugin is here mostly for automated tests & meta
+
+    tests: [{
+        noFeeds: true
+    },
+        "https://www.twitch.tv/videos/287127728"
     ]
 };

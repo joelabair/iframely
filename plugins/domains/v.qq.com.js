@@ -2,8 +2,10 @@ var _ = require('underscore');
 
 var res = [
     /^https?:\/\/v\.qq\.com\/page\/\w\/\w\/\w\/(\w+)\.html$/i,
-    /^https?:\/\/v\.qq\.com\/\w+\/page\/\w\/\w\/\w\/(\w+)\.html$/i,
-    /^https?:\/\/v\.qq\.com\/\w+\/\w\/\w+\.html\?vid=(\w+)$/i
+    /^https?:\/\/v\.qq\.com\/\w+\/page\/(\w+)\.html$/i,
+    /^https?:\/\/v\.qq\.com\/\w+\/\w\/\w+\.html\?vid=(\w+)$/i,
+    /^https?:\/\/v\.qq\.com\/iframe\/(?:player|preview)\.html\?vid=(\w+)/i,
+    /^https?:\/\/v\.qq\.com\/\w\/cover\/\w+\/(\w+)\.html/i
 ];
 
 module.exports = {
@@ -14,13 +16,19 @@ module.exports = {
         "*"
     ],    
 
-    getLinks: function(urlMatch) {
-        return {
-                href: "http://static.video.qq.com/TPout.swf?vid=" + urlMatch[1],
-                type: CONFIG.T.flash,
-                rel: CONFIG.R.player
+    getLinks: function(url, urlMatch) {
+        
+        return [{
+                href: "https://v.qq.com/iframe/player.html?vid=" + urlMatch[1] + '&auto=0',
+                type: CONFIG.T.text_html,
+                rel: url.indexOf('iframe') > 0 ? [CONFIG.R.player, CONFIG.R.html5, CONFIG.R.oembed] : [CONFIG.R.player, CONFIG.R.html5, CONFIG.R.oembed] // avoid removing url=canonical
                 // "aspect-ratio": 4/3 // use default aspect instead
-            };
+            }, {
+                href: "https://v.qq.com/iframe/player.html?vid=" + urlMatch[1] + '&auto=1',
+                type: CONFIG.T.text_html,
+                rel: [CONFIG.R.player, CONFIG.R.html5, CONFIG.R.autoplay]
+                // "aspect-ratio": 4/3 // use default aspect instead
+            }];
     },
 
     tests: [{
@@ -31,7 +39,5 @@ module.exports = {
                 return url.match(r);
             }) && url;
         }
-    },
-        "http://v.qq.com/boke/page/j/5/7/j0115mhkc57.html"
-    ]
+    }]
 };

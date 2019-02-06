@@ -11,10 +11,11 @@ module.exports = {
     getLink: function (urlMatch) {
 
         return {
-            href: "http://player.youku.com/embed/"+ urlMatch[1],
+            href: "//player.youku.com/embed/"+ urlMatch[1],
             type: CONFIG.T.text_html,
-            rel: CONFIG.R.player,
-            "aspect-ratio": 16/10 //As stated it in docs
+            rel: [CONFIG.R.player, CONFIG.R.html5],
+            "aspect-ratio": 16/10, //As stated it in docs
+            autoplay: "autoplay=true"
         }
     },
 

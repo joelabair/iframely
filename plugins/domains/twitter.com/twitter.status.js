@@ -2,6 +2,7 @@ var async = require('async');
 var cache = require('../../../lib/cache');
 var sysUtils = require('../../../logging');
 var _ = require('underscore');
+var entities = require('entities');
 
 module.exports = {
 
@@ -9,7 +10,7 @@ module.exports = {
         /^https?:\/\/twitter\.com\/(?:\w+)\/status(?:es)?\/(\d+)/i
     ],
 
-    provides: ['twitter_oembed', 'twitter_video', '__allow_twitter_video'],
+    provides: ['twitter_oembed', 'twitter_og', '__allow_twitter_og'],
 
     mixins: ['domain-icon'],
 
@@ -58,7 +59,7 @@ module.exports = {
                 var apiUrl;
 
                 var qs = {
-                    hide_media: c.hide_media,
+                    hide_media:  c.hide_media, 
                     hide_thread: c.hide_thread,
                     omit_script: c.omit_script
                 };
@@ -156,10 +157,11 @@ module.exports = {
                 twitter_oembed: oembed
             };
 
-            if (c.media_only) {
-                result.__allow_twitter_video = true;
+            if (c.enable_video || options.getProviderOptions(CONFIG.O.compact, false) || /pic\.twitter\.com/i.test(oembed.html)) {
+                result.__allow_twitter_og = true;
+                options.followHTTPRedirect = true; // avoid core's re-directs. Use HTTP request redirects instead
             } else {
-                result.twitter_video = false;
+                result.twitter_og = false;
             }
 
             cb(null, result);
@@ -172,53 +174,95 @@ module.exports = {
             author: twitter_oembed.author_name,
             author_url: twitter_oembed.author_url,
             site: twitter_oembed.site_name || twitter_oembed.provider_name,
-            description: twitter_oembed.html.replace(/<(.*?)>/g, ''),
+            description: entities.decodeHTML(twitter_oembed.html.replace(/<(.*?)>/g, '')),
             canonical: twitter_oembed.url
         };
     },
 
-    getLink: function(twitter_oembed, twitter_video, options) {
+    getLink: function(twitter_oembed, twitter_og, options) {
 
+        var c = options.getProviderOptions("twitter") || options.getProviderOptions("twitter.status");
         var html = twitter_oembed.html;
 
+        var locale = options.getProviderOptions('locale');
+        if (locale && /^\w{2}(?:\_|\-)\w{2,3}$/.test(locale)) {
+            html = html.replace(/<blockquote class="twitter\-tweet"( data\-lang="\w+(?:\_|\-)\w+")?/, '<blockquote class="twitter-tweet" data-lang="' + locale.replace('-', '_') + '"');
+        }
+        
         if (options.getProviderOptions('twitter.center', true)) {
             html = html.replace('<blockquote class="twitter-tweet"', '<blockquote class="twitter-tweet" align="center"');
         }
 
+        if (options.getProviderOptions('twitter.dnt')) {
+            html = html.replace('<blockquote class="twitter-tweet"', '<blockquote class="twitter-tweet" data-dnt="true"');
+        }        
+
         var links = [];
 
-        if (twitter_video) {
-
-            html = html.replace(/class="twitter-tweet"/g, 
-                'class="twitter-video"' + (options.getProviderOptions('twitter.hide_tweet') ? ' data-status="hidden"': ''));
-
-            links.push({
-                html: html,
-                type: CONFIG.T.text_html,
-                rel: [CONFIG.R.player, CONFIG.R.inline, CONFIG.R.ssl, CONFIG.R.html5],
-                "aspect-ratio": twitter_video.width / twitter_video.height,
-                "max-width": 888 // good one, Twitter!
-            });
-
-        } else {
+        if (c.enable_video
+            && twitter_og && twitter_og.video && twitter_og.video.url && twitter_og.video.width && twitter_og.video.height && twitter_og.image 
+            && /^https?:\/\/pbs\.twimg\.com\/(?:media|amplify|ext_tw)/i.test(twitter_og.image.url || twitter_og.image.src || twitter_og.image) ) {            
+            // exclude not embedable videos with proxy images, ex:
+            // https://twitter.com/nfl/status/648185526034395137
 
             links.push({
-                html: html,
-                type: CONFIG.T.text_html,
-                rel: [CONFIG.R.app, CONFIG.R.inline, CONFIG.R.ssl, CONFIG.R.html5],
-                "min-width": twitter_oembed["min-width"],
-                "max-width": twitter_oembed["max-width"]
+                href: twitter_og.video.url.replace('?embed_source=facebook', ''),
+                rel: [CONFIG.R.player, CONFIG.R.html5],
+                accept: CONFIG.T.text_html, // let's check it
+                'aspect-ratio': twitter_og.video.width / twitter_og.video.height
             });
+
         }
+
+        if (options.getProviderOptions(CONFIG.O.compact, false)
+            && !/\s?data-conversation=\"none\"/.test(html)) {
+            html = html.replace('<blockquote class="twitter-tweet"', '<blockquote class="twitter-tweet" data-conversation="none"');
+        }
+
+        if (options.getProviderOptions(CONFIG.O.full, false)
+            && /\s?data-conversation=\"none\"/.test(html)) {
+            html = html.replace('data-conversation="none"', '');
+        }
+
+        var app = {
+            html: html,
+            type: CONFIG.T.text_html,
+            rel: [CONFIG.R.app, CONFIG.R.inline, CONFIG.R.ssl, CONFIG.R.html5],
+            "max-width": twitter_oembed["width"] || 550
+        };
+
+        if ((/https:\/\/t\.co\//i.test(twitter_oembed.html) && !/pic\.twitter\.com\//i.test(twitter_oembed.html)) // there's a link and a card inside the tweet
+            || (twitter_og.image && !(twitter_og.image.user_generated || /\/profile_images\//i.test(twitter_og.image)))) { // user_generated is string = 'true' for pics
+            app['aspect-ratio'] = 1;
+        }
+
+        links.push(app);
+
+        if (twitter_og && twitter_og.image && 
+            !/\/profile_images\//i.test(twitter_og.image.url || twitter_og.image.src || twitter_og.image)) {
+            // skip profile pictures
+
+            var thumbnail = {
+                href: twitter_og.image.url || twitter_og.image.src || twitter_og.image,
+                type: CONFIG.T.image,
+                rel: CONFIG.R.thumbnail
+            };
+
+            if (twitter_og.video && twitter_og.video.width && twitter_og.video.height) {
+                thumbnail.width = twitter_og.video.width;
+                thumbnail.height = twitter_og.video.height;
+            }
+
+            links.push(thumbnail);
+
+        }        
 
         return links;
     },
 
     tests: [
-        "https://twitter.com/TSwiftOnTour/status/343846711346737153",
 
         "https://twitter.com/Tackk/status/610432299486814208/video/1",
-        "https://twitter.com/BarstoolSam/status/602688682739507200/video/1",
         "https://twitter.com/RockoPeppe/status/582323285825736704?lang=en"  // og-image
     ]
 };

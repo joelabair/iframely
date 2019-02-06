@@ -25,16 +25,42 @@
     {
         "name": "Facebook Page",
         "templates": [
-            "(www|m)\\.facebook\\.com/([a-zA-Z0-9\\.\\-]+)/?(?:\\?f?ref=\\w+)?$"
+            "(?:www|m)\\.facebook\\.com/([a-zA-Z0-9\\.\\-]+)/?(?:\\?f?ref=\\w+)?$",
+            "(?:www|m)\\.facebook\\.com/(?:pg/?)?([a-zA-Z0-9\\.\\-]+)/(about|events)/(?:\\?f?ref=\\w+)?$"
         ],
         "endpoint": "https://www.facebook.com/plugins/page/oembed.json/"
     },
     {
-        "name": "Blip",
+        "name": "Instagram",
         "templates": [
-            "blip\\.tv/.*"
+            "(?:www\\.)?(instagram\\.com/(?:p|tv)/([a-zA-Z0-9_-]+))",
+            "(instagr\\.am/p/([a-zA-Z0-9_-]+))"
         ],
-        "endpoint": "http://blip.tv/oembed/"
+        "endpoint": "https://api.instagram.com/oembed?format={format}&url=https://www.{1}"
+    },
+    {
+        "name": "Instagram user page",
+        "templates": [
+            "(?:www\\.)?(instagram\\.com/)[a-zA-Z0-9_-]+/(p/[a-zA-Z0-9_-]+)",
+            "(instagr\\.am/)[a-zA-Z0-9_-]+/(p/[a-zA-Z0-9_-]+)"
+        ],
+        "endpoint": "https://api.instagram.com/oembed?format={format}&url=https://www.{1}{2}"
+    },
+    {
+        "name": "Dailymotion",
+        "templates": [
+            "dailymotion\\.com/video/.+",
+            "dailymotion\\.com/embed/video/.+"
+        ],
+        "endpoint": "http://www.dailymotion.com/services/oembed"
+    },
+    {
+        "name": "SoundCloud",
+        "templates": [
+            "soundcloud\\.com/.+",
+            "api\\.soundcloud\\.com\/tracks\\/\\d+"
+        ],
+        "endpoint": "http://soundcloud.com/oembed"
     },
     {
         "name": "Flickr",
@@ -43,7 +69,14 @@
             "(?:www\\.)?flickr\\.com/(photos/[@a-zA-Z0-9_\\.-]+/\\d+.*?$)",
             "(?:www\\.)?flickr\\.com/(photos/[@a-zA-Z0-9_\\.-]+/(?:sets|albums)/(?:\\d+))"
         ],
-        "endpoint": "http://www.flickr.com/services/oembed/?format={format}&url=https://www.flickr.com/{1}"
+        "endpoint": "https://www.flickr.com/services/oembed/?format={format}&url=https://www.flickr.com/{1}"
+    },
+    {
+        "name": "Brightcove",
+        "templates": [
+            "players.brightcove.net/.*"
+        ],
+        "endpoint": "https://oembed.brightcove.com/"        
     },
     {
         "name": "Hulu",
@@ -55,9 +88,9 @@
     {
         "name": "Scribd",
         "templates": [
-            "((?:www\\.)?scribd\\.com)/(?:doc|book|read|document)/(.*)"
+            "((?:www\\.)?scribd\\.com)/(?:doc|book|read|document|embeds)/(.*)"
         ],
-        "endpoint": "http://www.scribd.com/services/oembed?format={format}&url=https://{1}/doc/{2}"
+        "endpoint": "https://www.scribd.com/services/oembed?format={format}&url=https://{1}/doc/{2}"
     },
     {
         "name": "Viddler",
@@ -71,7 +104,7 @@
         "templates": [
             "(www\\.)?vimeo\\.com/.*"
         ],
-        "endpoint": "http://vimeo.com/api/oembed.{format}"
+        "endpoint": "https://vimeo.com/api/oembed.{format}"
     },
     {
         "name": "YouTube",
@@ -84,29 +117,14 @@
             "www\\.youtube\\.com/user/[a-zA-Z0-9_-]+\\?v=([a-zA-Z0-9_-]+)",
             "www\\.youtube-nocookie\\.com/v/([a-zA-Z0-9_-]+)"
         ],
-        "endpoint": "http://www.youtube.com/oembed?format={format}&url=https://www.youtube.com/watch?v={1}"
+        "endpoint": "https://www.youtube.com/oembed?format={format}&url=https://www.youtube.com/watch?v={1}"
     },
     {
         "name": "YouTube Playlist",
         "templates": [
             "www\\.youtube\\.com/playlist\\?list=([a-zA-Z0-9_-]+)"
         ],
-        "endpoint": "http://www.youtube.com/oembed"
-    },    
-    {
-        "name": "Qik",
-        "templates": [
-            "qik\\.com/video/.*",
-            "qik\\.com/.*"
-        ],
-        "endpoint": "http://qik.com/api/oembed.{format}"
-    },
-    {
-        "name": "Revision3",
-        "templates": [
-            "(.*\\.)?revision3\\.com/.*"
-        ],
-        "endpoint": "http://revision3.com/api/oembed/"
+        "endpoint": "https://www.youtube.com/oembed"
     },
     {
         "name": "CollegeHumor",
@@ -116,25 +134,18 @@
         "endpoint": "http://www.collegehumor.com/oembed.{format}"
     },
     {
-        "name": "My Opera",
-        "templates": [
-            "my\\.opera\\.com/.*"
-        ],
-        "endpoint": "http://my.opera.com/service/oembed"
-    },
-    {
         "name": "iFixit",
         "templates": [
-            "www\\.ifixit\\.com/.+/.+/.*"
+            "ifixit\\.com/.+/.+/.*"
         ],
-        "endpoint": "http://www.ifixit.com/Embed"
+        "endpoint": "https://www.ifixit.com/Embed"
     },
     {
         "name": "SmugMug",
         "templates": [
             "(.*\\.smugmug\\.com/[^#]*)#!i=(\\d+)&k=(\\w+)"
         ],
-        "endpoint": "http://api.smugmug.com/services/oembed/?format={format}&url=http://{1}%23{2}_{3}"
+        "endpoint": "https://api.smugmug.com/services/oembed/?format={format}&url=http://{1}%23{2}_{3}"
     },
     {
         "name": "SmugMug new",
@@ -148,7 +159,7 @@
         "templates": [
             "\\w+\\.slideshare\\.net/.+/.*"
         ],
-        "endpoint": "http://www.slideshare.net/api/oembed/2"
+        "endpoint": "https://www.slideshare.net/api/oembed/2"
     },
     {
         "name": "WordPress.com",
@@ -156,7 +167,7 @@
             ".*\\.wordpress.com",
             "wp\\.me/.*"
         ],
-        "endpoint": "http://public-api.wordpress.com/oembed/1.0/?format={format}&for=iframely&url={url}"
+        "endpoint": "https://public-api.wordpress.com/oembed/?format={format}&for=iframely&url={url}"        
     },
     {
         "name": "Twitter Moments",
@@ -177,9 +188,16 @@
     {
         "name": "Twitter Users",
         "templates": [
-            "twitter\\.com/(\\w+)$"
+            "(twitter\\.com/\\w+)/?$"
         ],
-        "endpoint": "https://publish.twitter.com/oembed?i=user&url={url}"
+        "endpoint": "https://publish.twitter.com/oembed?i=user&url=https://{1}"
+    },
+    {
+        "name": "Twitter Statuses",
+        "templates": [
+            "twitter\\.com/\\w+/status(?:es)?/\\d+"
+        ],
+        "endpoint": "https://publish.twitter.com/oembed"
     },
     {
         "name": "GfyCat",
@@ -187,75 +205,21 @@
             "gfycat\\.com/.+"
         ],
         "endpoint": "https://api.gfycat.com/v1/oembed?url={url}"
-    },    
-    {
-        "name": "Gist",
-        "templates": [
-            "gist\\.github\\.com/(.+)"
-        ],
-        "endpoint": "https://github.com/api/oembed"
     },
     {
         "name": "dotSUB",
         "templates": [
             "dotsub\\.com/view/.+"
         ],
-        "endpoint": "http://dotsub.com/services/oembed"
-    },
-    {
-        "name": "Instagr.am",
-        "templates": [
-            "([\\w\\.]*instagram\\.com/p/([a-zA-Z0-9_-]+))",
-            "(instagr\\.am/p/([a-zA-Z0-9_-]+))"
-        ],
-        "endpoint": "https://api.instagram.com/oembed?format={format}&url=http://{1}"
-    },
-    {
-        "name": "Instagr.am user page",
-        "templates": [
-            "([\\w\\.]*instagram\\.com/)[a-zA-Z0-9_-]+/(p/[a-zA-Z0-9_-]+)",
-            "(instagr\\.am/)[a-zA-Z0-9_-]+/(p/[a-zA-Z0-9_-]+)"
-        ],
-        "endpoint": "https://api.instagram.com/oembed?format={format}&url=http://{1}{2}"
-    },
-    {
-        "name": "DailyMotion",
-        "templates": [
-            "www\\.dailymotion\\.com/video/.+",
-            "www\\.dailymotion\\.com/embed/video/.+"
-        ],
-        "endpoint": "http://www.dailymotion.com/services/oembed"
-    },
-    {
-        "name": "SoundCloud",
-        "templates": [
-            "soundcloud\\.com/.+",
-            "api\\.soundcloud\\.com\/tracks\\/\\d+"
-        ],
-        "endpoint": "http://soundcloud.com/oembed"
+        "endpoint": "https://dotsub.com/services/oembed"
     },
     {
         "name": "Animoto",
         "templates": [
             "animoto\\.com/play/.+"
         ],
-        "endpoint": "http://animoto.com/oembeds/create.{format}?automated=true&options=start_hq&url={url}"
+        "endpoint": "https://animoto.com/oembeds/create.{format}?automated=true&options=start_hq&url={url}"
 
-    },
-    {
-        "name": "Dailymotion",
-        "templates": [
-            "dailymotion\\.com/video/.+"
-        ],
-        "endpoint": "http://www.dailymotion.com/services/oembed"
-    },
-    {
-        "name": "Rdio",
-        "templates": [
-            "rdio\\.com/people/[^/]+/playlists/.+",
-            "rdio\\.com/artist/[^/]+/album/.+"
-        ],
-        "endpoint": "http://www.rdio.com/api/oembed"
     },
     {
         "name": "500px",
@@ -279,32 +243,33 @@
         "endpoint": "https://speakerdeck.com/oembed.{format}"
     },
     {
-        "name": "Yandex Video",
+        "name": "Yandex Music",
         "templates": [
-            "video\\.yandex\\.ru/users/[^/]+/view/.+"
+            "music\\.yandex\\.ru/album/(\\d+)/track/(\\d+)"
         ],
-        "endpoint": "http://video.yandex.ru/oembed.{format}"
-    },
-    {
-        "name": "qz.com",
-        "templates": [
-            "qz\\.com/\\d+/[a-zA-Z0-9_-]+/"
-        ],
-        "endpoint": "http://public-api.wordpress.com/oembed/1.0/?format={format}&for=iframely&url={url}"
-    },
-    {
-        "name": "Techcrunch",
-        "templates": [
-            "techcrunch\\.com/[0-9]/[0-9]/[0-9]+/"
-        ],
-        "endpoint": "http://public-api.wordpress.com/oembed/1.0/?format={format}&for=iframely&url={url}"
+        "endpoint": "https://music.yandex.ru/handlers/oembed-{format}.jsx?album={1}&track={2}"
     },    
+    {
+        "name": "Yandex Music",
+        "templates": [
+            "music\\.yandex\\.ru/track/(\\d+)"
+        ],
+        "endpoint": "https://music.yandex.ru/handlers/oembed-{format}.jsx?track={1}"
+    },
+    {
+        "name": "Yandex Music",
+        "templates": [
+            "music\\.yandex\\.ru/album/(\\d+)"
+        ],
+        "endpoint": "https://music.yandex.ru/handlers/oembed-{format}.jsx?album={1}"
+    },   
     {
         "name": "Mixcloud",
         "templates": [
-            "www\\.mixcloud\\.com/.+/.+/.*"
+            "www\\.mixcloud\\.com/.+/.+/.*",
+            "www\\.mixcloud\\.com/.+"
         ],
-        "endpoint": "http://www.mixcloud.com/oembed/"
+        "endpoint": "https://www.mixcloud.com/oembed/"
     },
     {
         "name": "Coub",
@@ -313,13 +278,6 @@
             "coub\\.com/embed/.*"
         ],
         "endpoint": "http://coub.com/api/oembed.{format}"
-    },
-    {
-        "name": "Screenr",
-        "templates": [
-            "\\w+\\.screenr\\.com/[a-zA-Z0-9_-]+/"
-        ],
-        "endpoint": "http://www.screenr.com/api/oembed.{format}"
     },
     {
         "name": "Funny or Die",
@@ -336,30 +294,29 @@
         "endpoint": "http://fast.wistia.com/oembed.{format}"
     },
     {
-        "name": "crowdranking",
-        "templates": [
-            "crowdranking.com/crowdrankings/.+",
-            "crowdranking.com/rankings/.+",
-            "crowdranking.com/topics/.+",
-            "crowdranking.com/widgets/.+",
-            "crowdranking.com/r/.+"
-        ],
-        "endpoint": "http://crowdranking.com/api/oembed.{format}"
-    },
-    {
         "name": "IFTTT",
         "templates": [
-            "ifttt\\.com/recipes/.+"
+            "ifttt\\.com/recipes/(\\d+).+",
+            "ifttt\\.com/applets/(\\d+).+"
         ],
-        "endpoint": "https://ifttt.com/oembed"
+        "endpoint": "https://ifttt.com/oembed?url=https://ifttt.com/recipes/{1}&format={format}"
     },
     {
         "name": "Polldaddy",
         "templates": [
-            "polldaddy\\.com/poll/.*"
+            "polldaddy\\.com/(?:poll|s)/.*",
+            ".*\\.polldaddy.com/(?:poll|s)/.*"
         ],
-        "endpoint": "http://polldaddy.com/oembed/"
+        "endpoint": "https://polldaddy.com/oembed/"
     },
+    {
+        "name": "Polleverywhere",
+        "templates": [
+            "polleverywhere\\.com/.*",
+            "pollev\\.com/.*"
+        ],
+        "endpoint": "https://www.polleverywhere.com/services/oembed.{format}"        
+    },    
     {
         "name": "Meetup",
         "templates": [
@@ -368,27 +325,28 @@
         "endpoint": "http://api.meetup.com/oembed"
     },
     {
+        "name": "DeviantArt",
+        "templates": [
+            ".*\\.deviantart\\.com/art/.*",
+            ".*\\.deviantart\\.com/gallery/.*"
+        ],
+        "endpoint": "https://backend.deviantart.com/oembed"
+    },    
+    {
         "name": "Behance",
         "templates": [
             "www\\.behance\\.net/gallery/.*",
             "[^w]+\\.\\w+\\.\\w+/gallery/[\\w-]+/\\d+",
             "[^w]+\\.\\w+\\.\\w+/gallery/\\d+/[\\w-]+"
         ],
-        "endpoint": "http://www.behance.net/services/oembed"
-    },
-    {
-        "name": "Ted",
-        "templates": [
-            "ted\\.com/talks/.*"
-        ],
-        "endpoint": "http://www.ted.com/talks/oembed.{format}"
+        "endpoint": "https://www.behance.net/services/oembed"
     },
     {
         "name": "Codepen",
         "templates": [
             "codepen\\.io/.*/pen/.*"
         ],
-        "endpoint": "http://codepen.io/api/oembed"
+        "endpoint": "https://codepen.io/api/oembed"
     },
     {
         "name": "Spotify",
@@ -407,10 +365,10 @@
     {
         "name": "Droplr",
         "templates": [
-            "d.pr/i/.*",
+            "d.pr/.*",
             "\\w+\\.d\\.pr/.*"
         ],
-        "endpoint": "http://d.pr/oembed"
+        "endpoint": "https://embed.droplr.com/oembed"
     },
     {
         "name": "Vine",
@@ -422,23 +380,16 @@
     {
         "name": "Tumblr",
         "templates": [
-            "[a-z0-9-]+\\.tumblr\\.com/(post|image)/\\d+"
+            "[a-z0-9-]+\\.tumblr\\.com/post/\\d+"
         ],
         "endpoint": "https://www.tumblr.com/oembed/1.0"
     },
     {
-        "name": "DeviantArt",
+        "name": "Tumblr",
         "templates": [
-            ".*\\.deviantart\\.com/art/.*"
+            "([a-z0-9-]+)\\.tumblr\\.com/image/(\\d+)"
         ],
-        "endpoint": "http://backend.deviantart.com/oembed"
-    },
-    {
-        "name": "roomshare.jp",
-        "templates": [
-            "roomshare\\.jp/post/\\d+"
-        ],
-        "endpoint": "http://roomshare.jp/oembed.xml?url=http://{0}"
+        "endpoint": "https://www.tumblr.com/oembed/1.0?url=http://{1}.tumblr.com/post/{2}"
     },
     {
         "name": "carto.com",
@@ -457,9 +408,9 @@
     {
         "name": "Adobe Stock",
         "templates": [
-            "stock.adobe.com/.*"
+            "stock.adobe.com/(?:images|stock-photo)/([a-zA-Z0-9-]+\/\\d+)"
         ],
-        "endpoint": "https://stock.adobe.com/oembed"
+        "endpoint": "https://stock.adobe.com/oembed?url=https://stock.adobe.com/stock-photo/{1}"
     },
     {
         "name": "Reddit",
@@ -470,12 +421,14 @@
         "endpoint": "https://www.reddit.com/oembed"
     },
     {
-        "name": "Interlude",
+        "name": "Academie de Nantes",
         "templates": [
-            "interlude.fm/v/([a-zA-Z0-9-]+)"
+            "([a-z0-9]+)\\.ac\\-nantes\\.fr/mediacad/default/media/display(?:[\\/a-z0-9]+)?/(m/\\d+)",
+            "([a-z0-9]+)\\.ac\\-nantes\\.fr/mediacad/(m/\\d+)",
+            "([a-z0-9]+)\\.ac\\-nantes\\.fr/(m/\\d+)"            
         ],
-        "endpoint": "https://v.interlude.fm/oembed?vid={1}"
-    },
+        "endpoint": "https://{1}.ac-nantes.fr/default/media/display/{2}/d/j?format={format}"
+    },    
     {
         "name": "Academie de Bordeaux etc",
         "templates": [
@@ -488,7 +441,8 @@
     {
         "name": "RTL XL",
         "templates": [
-            "rtlxl\\.nl/#!/[^\/]+/([a-zA-Z0-9-]+)"
+            "rtlxl\\.nl/?(?:\\?.+)?#!/?.+",
+            "rtl\\.nl/video/([a-zA-Z0-9-]+)"
         ],
         "endpoint": "http://xlapi.rtl.nl/version=1/fun=oembed?url={1}"
     },
@@ -500,10 +454,140 @@
         "endpoint": "https://widget.ranker.com/oembed/{1}?for={format}"
     },
     {
-        "name": "Art19",
+        "name": "Art19 Episodes",
         "templates": [
-            "art19\\.com/shows/\\/[a-zA-Z0-9\\-_]+\\/episodes\\/[a-zA-Z0-9\\-_]+"
+            "art19\\.com/shows/([a-zA-Z0-9\\-_]+)\\/episodes/([a-zA-Z0-9\\-_]+)",
+            "art19\\.com/shows/([a-zA-Z0-9\\-_]+)\\/episodes/([a-zA-Z0-9\\-_]+)/embed"
         ],
-        "endpoint": "https://art19.com/oembed.json"
-    }    
+        "endpoint": "https://art19.com/oembed.json?url=https://art19.com/shows/{1}/episodes/{2}"
+    },
+    {
+        "name": "Art19 Shows",
+        "templates": [
+            "art19\\.com/shows/([a-zA-Z0-9\\-_]+)",
+            "art19\\.com/shows/([a-zA-Z0-9\\-_]+)/embed"
+        ],
+        "endpoint": "https://art19.com/oembed.json?url=https://art19.com/shows/{1}"
+    },    
+    {
+        "name": "Graphiq",
+        "templates": [
+            "graphiq\\.com/[a-zA-Z0-9\\-_]+/([a-zA-Z0-9\\-_]+)"
+        ],
+        "endpoint": "https://oembed.graphiq.com/services/oembed?url=https://m.graphiq.com/w/{1}&format={format}"
+    },
+    {
+        "name": "Slidely",
+        "templates": [
+            "slide\\.ly\/(?:\\w+\/)?view\/\\w+"            
+        ],
+        "endpoint": "http://slide.ly/oembed"
+    },
+    {
+        "name": "Getty Images",
+        "templates": [
+            "gty.im"
+        ],
+        "endpoint": "http://embed.gettyimages.com/oembed"
+    },
+    {
+        "name": "ReverbNation",        
+        "templates": [
+            "reverbnation.com"
+        ],
+        "endpoint": "https://www.reverbnation.com/oembed"
+    },
+    {
+        "name": "Twitch Beta",
+        "templates": [
+            "go.twitch\\.tv/([a-zA-Z0-9_\/]+)"
+        ],
+        "endpoint": "https://api.twitch.tv/v5/oembed?url=https://twitch.tv/{1}&format={format}"
+    },    
+    {
+        "name": "Twitch",
+        "templates": [
+            "twitch\\.tv/([a-zA-Z0-9_]+)/",
+            "clips.twitch.tv"
+        ],
+        "endpoint": "https://api.twitch.tv/v5/oembed"
+    },
+    {
+        "name": "CNEvids",        
+        "templates": [        
+            "player(?:\\-backend)?\\.cnevids\\.com/embed/[0-9a-zA-Z]+/[0-9a-zA-Z]+",
+            "player(?:\\-backend)?\\.cnevids\\.com/iframe/video/[0-9a-zA-Z]+"            
+        ],
+        "endpoint": "https://player.cnevids.com/services/oembed"
+    },
+    {
+        "name": "Web TV",
+        "templates": [        
+            "\\w+.web\\.tv/video/"            
+        ],
+        "endpoint": "http://web.tv/api/generalapi/oembed"        
+    }, {
+        "name": "Kickstarter",
+        "templates": [        
+            "kickstarter.com/projects/.*"            
+        ],
+        "endpoint": "https://www.kickstarter.com/services/oembed"        
+    }, {
+        "name": "Producthunt Comments",
+        "templates": [
+            "(?:www\\.)producthunt\\.com/posts/[^#]+#comments?\\-(\\d+)"
+        ],
+        "endpoint": "https://api.producthunt.com/widgets/oembed?url=https://www.producthunt.com/comments/{1}"
+    }, {
+        "name": "Office Forms",
+        "templates": [        
+            "forms.office.com/.*"            
+        ],
+        "endpoint": "https://forms.office.com/formapi/api/embed"
+    }, {
+        "name": "Tapewrite",
+        "templates": [
+            "tapewrite.com/tapes/play/.*"
+        ],
+        "endpoint": "https://tapewrite.com/REST/oembed"
+    }, {
+        "name": "someecards",
+        "templates": [            
+            "someecards.com/usercards/viewcard/.*",
+            "someecards.com/\\w+\\-cards/.*"
+        ],
+        "endpoint": "https://www.someecards.com/v2/oembed"
+    }, {
+        "name": "Datawrapper",
+        "templates": [            
+            "datawrapper.dwcdn.net/.*"
+        ],
+        "endpoint": "https://app.datawrapper.de/api/plugin/oembed"
+    }, {
+        "name": "Tableau Public",
+        "templates": [            
+            "public.tableau.com/.*"
+        ],
+        "endpoint": "https://public.tableau.com/profile/api/oembed"
+    }, {
+        "name": "TeamCoco",
+        "templates": [            
+            "teamcoco.com/.*"
+        ],
+        "endpoint": "http://teamcoco.com/oembed.{format}"
+    },
+    {
+        "name": "Storied",
+        "templates": [        
+            "(\\w+.storied\\.co/.*/)"
+        ],
+        "endpoint": "https://{1}oembed.json?format={format}"
+    },
+    {
+        "name": "Figma",
+        "templates": [        
+            "figma.com/.*"
+        ],
+        "endpoint": "https://www.figma.com/api/oembed"
+    }
 ]

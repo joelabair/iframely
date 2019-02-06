@@ -3,7 +3,7 @@ var cheerio = require('cheerio');
 module.exports = {
 
     re: [
-        /^https?:\/\/tvcast\.naver\.com\/v\/(\d+)/i
+        /^https?:\/\/(?:tvcast|tv)\.naver\.com\/v\/(\d+)/i
     ],
 
     mixins: ['*'],
@@ -53,9 +53,18 @@ module.exports = {
 
     },
 
+    getMeta: function(meta) {
+        if (meta.naver && meta.naver.video) {
+            return {
+                duration: meta.naver.video.play_time,
+                views: meta.naver.video.play_count
+            }
+        }
+    },
+
     tests: [{
         noFeeds: true
-    },
-        "http://tvcast.naver.com/v/462633"
+    },        
+        "http://tv.naver.com/v/2889469"
     ]
 };

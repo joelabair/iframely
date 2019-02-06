@@ -2,47 +2,33 @@
 
 var core = require('../../lib/core');
 var cache = require('../../lib/cache');
-var _ = require('underscore');
 var async = require('async');
-
-var favicon = require('../links/favicon');
-var logo = require('../links/logo');
+var _ = require('underscore');
 
 module.exports = {
 
-    provides: 'domain_meta',
+    provides: 'domain_icons',
 
-    getLinks: function(domain_meta) {
-
-        var links = favicon.getLink(domain_meta);
-        var logoLink = logo.getLink(domain_meta);
-
-        if (logoLink) {
-            links.push(logoLink);
-        }
-
-        return links;
+    getLinks: function(domain_icons) {
+        return domain_icons;
     },
 
-    getData: function(url, cb) {
+    getData: function(url, cb, options) {
 
         // find domain and protocol
         var domain, protocol;
         var m = url.toLowerCase().match(/^(https?:\/\/)([^/]+)\/(.)/i);
         
-        if (m) {
+        if (m && (m[1] + m[2] !== url)) {
             domain = m[2];
             protocol = m[1];
         } else {
-            // also prevent self recursion for root domains like http://domain.com.
-            // TODO: get domain icon from current url meta.
+            // prevent self recursion for root domains like http://domain.com.
             return cb();
         }
 
         var domainUri = protocol + domain;
-
-        // Same key as in cachedMeta.js
-        var key = 'meta:' + domainUri;
+        var key = 'ha:domain_icon:' + domain;
 
         async.waterfall([
 
@@ -54,23 +40,39 @@ module.exports = {
 
                 if (data) {
 
+                    // Ask 'checkFavicon' to skip check.
+                    data.forEach(function(link) {
+                        link._imageStatus = {doNotCheck: true};
+                    });
+
                     cb(null, {
-                        domain_meta: data
+                        domain_icons: data
                     });
 
                 } else {
 
-                    core.run(domainUri, {
-                        fetchParam: 'meta'
-                    }, function(error, meta) {
+                    // skip domain icon on cache miss 
+                    cb (null, null); 
 
-                        if (!error) {
-                            cache.set(key, meta);
+                    // and asynchronously put in cache for next time
+                    // + run icons validation right away
+
+                    // forceSyncCheck - ask 'checkFavicon' to check favicon this time before callback.
+                    core.run(domainUri, _.extend({}, options, {forceSyncCheck: true}), function(error, data) {
+                        if (data && data.links) {
+
+                            // do need to set cache here as domains may redirect, 
+                            // e.g. http ->https, then http urls will always miss icons.
+
+                            var icons = data.links.filter(function(link) {
+                                return link.rel.indexOf(CONFIG.R.icon) > -1;
+                            });
+
+                            cache.set(key, icons, {ttl: CONFIG.IMAGE_META_CACHE_TTL});
+
+                        } else {
+                            cache.set(key, [], {ttl: CONFIG.IMAGE_META_CACHE_TTL});
                         }
-
-                        cb(error, {
-                            domain_meta: meta
-                        });
                     });
                 }
             }
@@ -78,6 +80,10 @@ module.exports = {
         ], function(error, data) {
             return cb(null, data);
         });
+    },
+
+    tests: {
+        skipTestAsMixin: true
     }
 
 };

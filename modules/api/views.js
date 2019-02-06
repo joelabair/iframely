@@ -44,16 +44,43 @@ function getIntParam(req, param) {
 
 function handleIframelyError(error, res, next) {
 
-    res.tryCacheError(error);
+    if (error.code) {
 
-    if (error == 404 || error.code == 'ENOTFOUND') {
-        return next(new utils.NotFound('Page not found'));
-    }
+        var responseCode = error.responseCode;
 
-    if (typeof error === "number") {
-        next(new utils.HttpError(error, "Requested page error: " + error));
+        if (responseCode) {
+
+            // code: 'http error'
+
+            if (responseCode === 404) {
+                return next(new utils.NotFound('Page not found', error.messages));
+            }
+
+            var outCode = (typeof responseCode !== "number" || responseCode >= 500) ? 417 : responseCode;
+
+            next(new utils.HttpError(outCode, "Requested page error: " + responseCode, error.messages));
+
+        } else if (error.code === 'timeout') {
+
+            next(new utils.HttpError(408, "Processing error: " + error.code, error.messages));
+
+        } else if (error.code === 'request error' && error.error) {
+
+            // Node error in request.
+
+            next(new utils.HttpError(417, "Processing error: " + error.error.code, error.messages));
+
+        } else {
+
+            // code: other.
+
+            next(new utils.HttpError(417, "Processing error: " + error.code, error.messages));
+        }
+
     } else {
-        next(new Error("Iframely error: " + error));
+
+        next(new utils.HttpError(500, "Server error: " + error));
+
     }
 }
 
@@ -78,6 +105,7 @@ module.exports = function(app) {
             function(cb) {
 
                 iframelyCore.run(uri, {
+                    v: '1.3',
                     debug: getBooleanParam(req, 'debug'),
                     mixAllWithDomainPlugin: getBooleanParam(req, 'mixAllWithDomainPlugin'),
                     forceParams: req.query.meta === "true" ? ["meta", "oembed"] : null,
@@ -86,7 +114,8 @@ module.exports = function(app) {
                     getWhitelistRecord: whitelist.findWhitelistRecordFor,
                     maxWidth: getIntParam(req, 'maxwidth') || getIntParam(req, 'max-width'),
                     promoUri: req.query.promoUri,
-                    refresh: getBooleanParam(req, 'refresh')
+                    refresh: getBooleanParam(req, 'refresh'),
+                    disableCache: getBooleanParam(req, 'refresh')
                 }, cb);
             }
 
@@ -143,8 +172,14 @@ module.exports = function(app) {
                 maxWidth: getIntParam(req, 'maxwidth') || getIntParam(req, 'max-width')
             });
 
+            var omit_css = getBooleanParam(req, 'omit_css');
+
             iframelyUtils.generateLinksHtml(result, {
-                autoplayMode: getBooleanParam(req, 'autoplay')
+                autoplayMode: getBooleanParam(req, 'autoplay'),
+                aspectWrapperClass:     omit_css ? CONFIG.DEFAULT_OMIT_CSS_WRAPPER_CLASS : false,
+                maxWidthWrapperClass:   omit_css ? CONFIG.DEFAULT_MAXWIDTH_WRAPPER_CLASS : false,
+                omitInlineStyles: omit_css,
+                forceWidthLimitContainer: true
             });
 
             if (req.query.group || CONFIG.GROUP_LINKS) {
@@ -207,6 +242,7 @@ module.exports = function(app) {
                 cache.withCache('html:' + version + ':' + uri, function(cb) {
 
                     iframelyCore.run(uri, {
+                        v: '1.3',
                         getWhitelistRecord: whitelist.findWhitelistRecordFor,
                         readability: true
                     }, function(error, data) {
@@ -264,6 +300,7 @@ module.exports = function(app) {
                 cache.withCache('render_link:' + version + ':' + uri, function(cb) {
 
                     iframelyCore.run(uri, {
+                        v: '1.3',
                         getWhitelistRecord: whitelist.findWhitelistRecordFor
                     }, function(error, result) {
 
@@ -370,11 +407,13 @@ module.exports = function(app) {
             function(cb) {
 
                 iframelyCore.run(uri, {
+                    v: '1.3',
                     getWhitelistRecord: whitelist.findWhitelistRecordFor,
                     filterNonSSL: getBooleanParam(req, 'ssl'),
                     filterNonHTML5: getBooleanParam(req, 'html5'),
                     maxWidth: getIntParam(req, 'maxwidth') || getIntParam(req, 'max-width'),
-                    refresh: getBooleanParam(req, 'refresh')
+                    refresh: getBooleanParam(req, 'refresh'),
+                    disableCache: getBooleanParam(req, 'refresh')
                 }, cb);
             }
 
@@ -393,7 +432,9 @@ module.exports = function(app) {
             });
 
             var oembed = oembedUtils.getOembed(uri, result, {
-                mediaPriority: getBooleanParam(req, 'media')
+                mediaPriority: getBooleanParam(req, 'media'),
+                omit_css: getBooleanParam(req, 'omit_css'),
+                targetWidthForResponsive: getIntParam(req, 'width')
             });
 
             if (req.query.format === "xml") {

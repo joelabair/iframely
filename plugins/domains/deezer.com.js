@@ -4,7 +4,7 @@ module.exports = {
         "*"
     ],
 
-    getLink: function(url, twitter) {
+    getLink: function(url, twitter, meta) {
 
         if (twitter.card !== 'player' || !twitter.player) {
 
@@ -12,18 +12,25 @@ module.exports = {
 
         } else {
 
+            var href = twitter.player.value.replace(/format=square&?(amp;)?/i, '');
+
+            var isTrack = /\/track\//i.test(url) || (meta.music && meta.music.album && meta.music.album.track == 1);
+
             return {
-                href: /\/track\//i.test(url) ? twitter.player.value.replace(/&height=\d+/i, '&height=92') : twitter.player.value,
+                href:  isTrack ? href.replace(/height=\d+/i, 'height=92').replace(/&width=\d+/i, '') : href,
                 type: CONFIG.T.text_html,
                 rel: [CONFIG.R.player, CONFIG.R.html5],
-                height: /\/track\//i.test(url) ? 92 : twitter.player.height
+                height: isTrack ? 92 : twitter.player.height,
+                autoplay: 'autoplay=1'
             }
 
         }
 
     },
 
-    tests: [
+    tests: [{
+        noFeeds: true
+    },
         "http://www.deezer.com/track/11523496",
         "http://www.deezer.com/track/61423083",
         "http://www.deezer.com/album/11417888",

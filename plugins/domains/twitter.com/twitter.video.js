@@ -4,12 +4,12 @@ module.exports = {
         /^https?:\/\/twitter\.com\/(?:\w+)\/status(?:es)?\/(\d+)/i
     ],
 
-    provides: ['twitter_video'],
+    provides: ['twitter_og'],
 
-    getData: function(__allow_twitter_video, og) {
+    getData: function(__allow_twitter_og, meta) {
 
         return {
-            twitter_video: (og.video && og.image && /^https?:\/\/pbs\.twimg\.com\//i.test(og.image.url || og.image.src || og.image)) ? og.video : false
+            twitter_og: meta.og ? meta.og : false
             // exclude proxy images, ex:
             // https://twitter.com/nfl/status/648185526034395137
         }

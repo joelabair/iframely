@@ -65,14 +65,7 @@ module.exports = {
         return links;
     },
 
-    tests: [{
-        pageWithFeed: "http://www.smugmug.com/popular/today",
-        getUrl: function(url) {
-            return url.indexOf('smugmug.com/') > -1 ? url : null;
-        },
-        skipMethods: ["getLink"]
-    },
-        "http://www.smugmug.com/popular/all#!i=789708429&k=sPdffjw",
-        "http://cedricwalter.smugmug.com/Computers/Joomla/i-726WRdK/A"
+    tests: [
+        "https://kalyr.smugmug.com/Music/2016/Cambridge-Rock-Festival-2016/i-95w2R4W"
     ]
 };

@@ -3,7 +3,7 @@ var entities = require('entities');
 
 module.exports = {
 
-    getLink: function(oembed, whitelistRecord) {
+    getLink: function(oembed, whitelistRecord) {        
 
 
         if (!(oembed.type === "video" && whitelistRecord.isAllowed && whitelistRecord.isAllowed('oembed.video'))) {
@@ -15,12 +15,12 @@ module.exports = {
             rel:[CONFIG.R.oembed, CONFIG.R.player]
         };
 
-        // allow encoded entities if they start from $lt; and end with &gt;
+        // allow encoded entities if they start from $lt;
+        // ex.: http://www.nfb.ca/film/wild_life/
         var html = oembed.html5 || oembed.html; 
-        if (/^&lt;.*&gt;$/i.test(html)) {
+        if (/^&lt;/i.test(html)) {
             html = entities.decodeHTML(html);
         }
-
 
         var $container = cheerio('<div>');
         try {
@@ -52,6 +52,10 @@ module.exports = {
 
         if (whitelistRecord.isAllowed('oembed.video', 'autoplay')) {
             player.rel.push(CONFIG.R.autoplay);
+        }
+
+        if (whitelistRecord.oembed && whitelistRecord.oembed['video-autoplay']) {
+            player.autoplay = whitelistRecord.oembed['video-autoplay'];
         }
 
         return player;

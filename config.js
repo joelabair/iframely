@@ -1,7 +1,11 @@
 (function() {
 
     // Monkey patch before you require http for the first time.
-    process.binding('http_parser').HTTPParser = require('http-parser-js').HTTPParser;
+    var majorVersion = process.version.match(/v(\d+)\./);
+    majorVersion = parseInt(majorVersion);
+    if (majorVersion < 10) {
+        process.binding('http_parser').HTTPParser = require('http-parser-js').HTTPParser;
+    }
 
     var _ = require('underscore');
     var path = require('path');
@@ -11,11 +15,16 @@
 
     var config = {
 
-        WHITELIST_URL: 'http://iframely.com/qa/whitelist.json',
+        baseAppUrl: "",
+        port: 8061,
+        relativeStaticUrl: "/s",
+        DEBUG: false,
+
+        WHITELIST_URL: 'https://iframely.com/qa/whitelist.json',
         WHITELIST_URL_RELOAD_PERIOD: 60 * 60 * 1000,  // will reload WL every hour, if no local files are found in /whitelist folder
 
         WHITELIST_WILDCARD: {},
-        WHITELIST_LOG_URL: 'http://iframely.com/whitelist-log',
+        WHITELIST_LOG_URL: 'https://iframely.com/whitelist-log',
 
         // Default cache engine to prevent warning.
         CACHE_ENGINE: 'node-cache',
@@ -25,6 +34,7 @@
 
         CACHE_TTL_PAGE_TIMEOUT: 10 * 60,
         CACHE_TTL_PAGE_404: 10 * 60,
+        CACHE_TTL_PAGE_OTHER_ERROR: 1 * 60,
 
         CLUSTER_WORKER_RESTART_ON_PERIOD: 8 * 3600 * 1000, // 8 hours.
         CLUSTER_WORKER_RESTART_ON_MEMORY_USED: 120 * 1024 * 1024, // 120 MB.
@@ -36,12 +46,20 @@
         USER_AGENT: "Iframely/" + version + " (+http://iframely.com/;)",
         VERSION: version,
 
+        FB_USER_AGENT: 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+
+        ACCEPT_LANGUAGE_SUFFIX: ';q=0.9,en;q=0.7,*;q=0.5',
+
         SKIP_IFRAMELY_RENDERS: false,
         DEFAULT_ASPECT_RATIO: 16 / 9,
+        MAX_VERTICAL_ASPECT_RATIO: 1,
+
+        DEFAULT_OMIT_CSS_WRAPPER_CLASS: 'iframely-responsive',
+        DEFAULT_MAXWIDTH_WRAPPER_CLASS: 'iframely-embed',
 
         T: {
             text_html: "text/html",
-            maybe_text_html: "maybe_text_html",
+            maybe_text_html: "maybe_text_html",            
             javascript: "application/javascript",
             safe_html: "text/x-safe-html",
             image_jpeg: "image/jpeg",
@@ -54,7 +72,9 @@
             image_webp: "image/webp",
             video_mp4: "video/mp4",
             video_ogg: "video/ogg",
-            video_webm: "video/webm"
+            video_webm: "video/webm",
+            stream_apple_mpegurl: "application/vnd.apple.mpegurl",
+            stream_x_mpegurl: "application/x-mpegURL"
         },
 
         PROMO_RELS: [
@@ -68,6 +88,7 @@
             "app",
             "player",
             "survey",
+            "summary",
             "image",
             "reader",
             "thumbnail",
@@ -114,11 +135,21 @@
             html5: "html5",
             gifv: "gifv",
 
-            promo: "promo"
+            promo: "promo",
+            playerjs: "playerjs",
+
+            audio: 'audio',
+            slideshow: 'slideshow',
+            playlist: 'playlist'            
         },
 
-        // Whitelist settings.
+        // Option names   
+        O: {
+            compact: "iframely.less",
+            full: "iframely.more"
+        },        
 
+        // Whitelist settings.
         REL: {
             "iframely": [
                 "reader",

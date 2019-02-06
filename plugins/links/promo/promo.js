@@ -11,16 +11,26 @@ module.exports = {
         // see theplatform plugin for example
         var promoUri = typeof __promoUri !== "string" ? __promoUri.url : __promoUri;
 
-        if (url === promoUri) {
+        if (url === promoUri || (options.redirectsHistory && options.redirectsHistory.indexOf(promoUri) > -1)) {
             // Prevent self recursion.
             return cb();
         }
 
-        var options2 = _.extend({}, options, {debug: false});
+        var options2 = _.extend({}, options, {debug: false, mixAllWithDomainPlugin: false});
         delete options2.promoUri;
+        delete options2.jar;
 
         core.run(promoUri, options2, function(error, data) {
-            cb(error, {
+
+            var wrappedError = null;
+
+            if (error) {
+                wrappedError = {
+                    promoError: error
+                };
+            }
+
+            cb(wrappedError, {
                 promo: data
             });
         });

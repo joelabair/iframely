@@ -4,7 +4,7 @@
 
      Iframely consumer client lib.
 
-     Version 0.9.7
+     Version 1.2.6
 
      Fetches and renders iframely oebmed/2 widgets.
 
@@ -299,9 +299,13 @@
         },
         "mp4video": {
             test: function(data) {
-                return (data.type == "video/mp4"
+                return data.type == "video/mp4"
                     || data.type == "video/webm"
-                    || data.type == "video/ogg");
+                    || data.type == "video/ogg"
+                    || (window.Hls && Hls.isSupported() && (
+                        data.type == "application/x-mpegURL" || data.type == "application/x-mpegurl"
+                        || data.type == "application/vnd.apple.mpegurl"
+                    ));
             },
             generate: function(data, options) {
 
@@ -387,6 +391,14 @@
                     .attr('src', data.href)
                     .attr('type', data.type);
 
+                if (data.type == "application/x-mpegURL"
+                    || data.type == "application/vnd.apple.mpegurl") {
+
+                    var hls = new Hls();
+                    hls.loadSource(data.href);
+                    hls.attachMedia($video.get(0));
+                }
+
                 if (options && options.disableSizeWrapper) {
                     return $video;
                 } else {
@@ -420,9 +432,8 @@
                 var $iframe = $('<iframe>')
                     .attr('src', data.href)
                     .attr('frameborder', '0')
-                    .attr('allowfullscreen', true)
-                    .attr('webkitallowfullscreen', true)
-                    .attr('mozallowfullscreen', true);
+                    .attr('allowfullscreen', '')
+                    .attr('allow', 'autoplay; encrypted-media');
 
                 if (data.media && data.media.scrolling === 'no') {
                     $iframe.attr('scrolling', 'no');
@@ -451,7 +462,15 @@
                 }
                 return $el;
             }
-        }
+        },
+        "mp3audio": {
+            test: function(data) {
+                return /^audio\//i.test(data.type) && data.href;
+            },
+            generate: function(data) {
+                return $('<audio controls preload="auto"><source src="' + data.href + '" type="audio/mp3"></audio>');
+            }
+        },        
     };
 
     $.iframely.generateLinkElement = function(link, options) {

@@ -1,0 +1,14 @@
+version: '3'
+
+networks:
+    sendsitesnet:
+        external: true
+
+services:
+    
+    iframely-service:
+        hostname: iframely-service.net
+        image: joelabair/iframely:latest
+        user: node
+        networks:
+            sendsitesnet:

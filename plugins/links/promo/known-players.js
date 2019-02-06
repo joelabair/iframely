@@ -44,9 +44,22 @@ module.exports = {
         } 
 
 
+        // or theplatform flash
+        urlMatch = video_src.match(/^https?:\/\/player\.theplatform\.com\/p\/([_a-zA-Z0-9\-]+)\/([_a-zA-Z0-9\-]+)\/swf(\/select\/(?:media\/)?[_a-zA-Z0-9\-]+)/i);
+
+        if (urlMatch) {
+            return {
+                __promoUri: {
+                    url: 'https://player.theplatform.com/p/' + urlMatch[1] + '/' + urlMatch[2] + urlMatch[3] + '?for=iframely', // otherwise player=canonical,
+                    rel: 'No rel=promo is required' // this field is just for debugging here. Not required
+                }
+            };
+        }
+
         // or theplatform
-        urlMatch = video_src.match(/^https?:\/\/player\.theplatform\.com\/p\/[_a-zA-Z0-9\-]+\/select\/[_a-zA-Z0-9\-]+/i)
-                || video_src.match(/^https?:\/\/player\.theplatform\.com\/p\/[_a-zA-Z0-9\-\/]+\/select\/[_a-zA-Z0-9\-]+/i);
+        urlMatch = video_src.match(/^https?:\/\/player\.theplatform\.com\/p\/[_a-zA-Z0-9\-]+(?:\/embed)?\/select\/[_a-zA-Z0-9\-]+/i)
+                || video_src.match(/^https?:\/\/player\.theplatform\.com\/p\/[_a-zA-Z0-9\-\/]+(?:\/embed)?\/select\/[_a-zA-Z0-9\-]+/i);
+                
 
         if (urlMatch) {
             return {
@@ -57,22 +70,11 @@ module.exports = {
             };
         }
 
-        // or theplatform flash
-        urlMatch = video_src.match(/^https?:\/\/player\.theplatform\.com\/p\/([_a-zA-Z0-9\-]+)\/([_a-zA-Z0-9\-]+)\/swf\/select\/media\/([_a-zA-Z0-9\-]+)/i);
-
-        if (urlMatch) {
-            return {
-                __promoUri: {
-                    url: 'https://player.theplatform.com/p/' + urlMatch[1] + '/' + urlMatch[2] + '/select/' + urlMatch[3] + '?for=iframely', // otherwise player=canonical,
-                    rel: 'No rel=promo is required' // this field is just for debugging here. Not required
-                }
-            };
-        }
-
 
         // or jwplatform
         urlMatch = video_src.match(/^https?:\/\/content\.jwplatform\.com\/players\/([_a-zA-Z0-9\-]+)\.html/i)
-                || video_src.match(/^https?:\/\/content\.jwplatform\.com\/videos\/([_a-zA-Z0-9\-]+)\.mp4/i);
+                || video_src.match(/^https?:\/\/content\.jwplatform\.com\/videos\/([_a-zA-Z0-9\-]+)\.(?:mp4|m3u8)/i)
+                || video_src.match(/^https?:\/\/content\.jwplatform\.com\/previews\/([_a-zA-Z0-9\-]+)/i);                
 
         if (urlMatch) {
             return {
@@ -81,7 +83,60 @@ module.exports = {
                     rel: 'No rel=promo is required' // this field is just for debugging here. Not required
                 }
             };
+        }
+
+        // or wistia player
+        urlMatch = video_src.match(/^https?:\/\/fast\.wistia\.(?:net|com)\/embed\/iframe\/([_a-zA-Z0-9\-]+)/i);
+
+        if (urlMatch) {
+            return {
+                __promoUri: 'https://fast.wistia.net/embed/iframe/' + urlMatch[1] + '?for=iframely'
+            };
+        }
+
+        // or wistia canonical
+        urlMatch = video_src.match(/^https?:\/\/\w+\.wistia\.(?:net|com)\/medias?\/([_a-zA-Z0-9\-]+)/i);
+
+        if (urlMatch) {
+            return {
+                __promoUri: video_src                
+            };
         } 
+
+
+
+        // or simplecast
+        urlMatch = video_src.match(/https?:\/\/simplecast\.com\/card\/[a-zA-Z0-9\-]+/i);
+
+        if (urlMatch) {
+            return {
+                __promoUri: {
+                    url: urlMatch[0],
+                    rel: 'No rel=promo is required' // this field is just for debugging here. Not required
+                }
+            };
+        }
+
+        // or brightcove
+        urlMatch = video_src.match(/^https?:\/\/players\.brightcove\.net\/(\d+)\/([a-zA-Z0-9\-_]+|default)_default\/index.html\?videoId=([a-zA-Z0-9\-:]+)/i) ||
+                   video_src.match(/^https?:\/\/bcove\.me\/[a-zA-Z0-9]+/i);
+
+        if (urlMatch) {
+            return {
+                __promoUri: video_src + (!/^https?:\/\/bcove\.me\/[a-zA-Z0-9]+/i.test(video_src) ? '&autoplay=true': '')
+            };
+        }
+
+        // Or Soundcloud || Giphy
+        urlMatch = video_src.match(/^https?:\/\/(?:\w+\.)?soundcloud\.com/i) || video_src.match(/^https?:\/\/giphy\.com\/embed/i);
+
+
+        if (urlMatch) {
+            return {
+                __promoUri: video_src
+            };
+        } 
+
 
     }
 };

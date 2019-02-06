@@ -22,12 +22,8 @@ module.exports = {
             href: "//fast.wistia.net/embed/iframe/" + urlMatch[2] + params,
             type: CONFIG.T.text_html,
             rel: [CONFIG.R.player, CONFIG.R.html5],
-            "aspect-ratio": oembed.width / oembed.height
-        }, {
-            href: "//fast.wistia.net/embed/iframe/" + urlMatch[2] + params + (params.indexOf("?") > -1 ? "&": "?") + "autoPlay=true",
-            type: CONFIG.T.text_html,
-            rel: [CONFIG.R.player, CONFIG.R.html5, CONFIG.R.autoplay],
-            "aspect-ratio": oembed.width / oembed.height
+            "aspect-ratio": oembed.width / oembed.height,
+            autoplay: "autoPlay=true"
         }, {
             href: "http://wistia.com/favicon.ico",
             type: CONFIG.T.image,
@@ -40,7 +36,6 @@ module.exports = {
         noFeeds: true
     },
         "http://appsumo.wistia.com/medias/fudkgyoejs",
-        "http://convinceandconvert.wistia.com/medias/52lpg5691w?utm_campaign=Argyle+Social-2013-04&utm_medium=Argyle+Social&utm_source=General+Use&utm_term=2013-04-24-13-23-55",
-        "http://mcgallen.wistia.com/medias/3nd1iitk2s?embedType=seo"
+        "http://convinceandconvert.wistia.com/medias/52lpg5691w?utm_campaign=Argyle+Social-2013-04&utm_medium=Argyle+Social&utm_source=General+Use&utm_term=2013-04-24-13-23-55"
     ]
 };

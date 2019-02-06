@@ -4,11 +4,30 @@ var $ = require('cheerio');
 module.exports = {
 
     mixins: [
-        "oembed-title",
-        "oembed-author",
-        "oembed-site",
-        "domain-icon"
+        // "*" // Linking to * will enable oembed-rich and will result in incorrect aspect-ratios
+            "twitter-image",
+            "oembed-thumbnail",
+            "favicon",
+            "oembed-author",
+            "canonical",
+            "description",
+            "oembed-site",
+            "oembed-title"
     ],
+
+    getMeta: function(meta) {
+
+        if (meta.slideshare) {
+            return {
+                views: meta.slideshare.view_count,
+                date: meta.slideshare.published || meta.slideshare.created_at || meta.slideshare.updated_at,
+                category: meta.slideshare.category,
+                likes: meta.slideshare.favorites_count,
+                author_url: /^https:\/\//.test(meta.slideshare.author) ? meta.slideshare.author : null
+            }
+        }
+
+    },
 
     getLink: function(oembed, options, cb) {
 
@@ -42,12 +61,14 @@ module.exports = {
 
                 var $iframe = $container.find('iframe');
 
+                var aspect = (data.width && data.height) ? data.width / data.height : oembed.width / oembed.height;
+
                 if ($iframe.length == 1) {
                     links.push({
                         href: $iframe.attr('src').replace('http:', ''),
                         type: CONFIG.T.text_html,
-                        rel: [CONFIG.R.player, CONFIG.R.html5],
-                        "aspect-ratio": (data.width && data.height) ? data.width / data.height : oembed.width / oembed.height,
+                        rel: [aspect > 1 ? CONFIG.R.player : CONFIG.R.reader, CONFIG.R.html5],
+                        "aspect-ratio": aspect,
                         "padding-bottom": 38
                     });
                 }
@@ -72,6 +93,7 @@ module.exports = {
         page: "http://www.slideshare.net/popular/today",
         selector: "a.iso_slideshow_link"
     },
-        "http://www.slideshare.net/geniusworks/gamechangers-the-next-generation-of-business-innovation-by-peter-fisk#btnNext"
+        "http://www.slideshare.net/geniusworks/gamechangers-the-next-generation-of-business-innovation-by-peter-fisk#btnNext",
+        "https://www.slideshare.net/EnjoyDigitAll/le-design-thinking-by-enjoydigitall-71136562"
     ]
 };
