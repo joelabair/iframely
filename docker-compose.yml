@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+    
+    iframely-service:
+        hostname: iframely-service.net
+        image: joelabair/iframely:latest
+        build:
+            context: ./
