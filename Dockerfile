@@ -1,4 +1,4 @@
-FROM node:5.8
+FROM node:8
 
 EXPOSE 8061
 

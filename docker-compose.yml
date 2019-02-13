@@ -9,6 +9,8 @@ services:
     iframely-service:
         hostname: iframely-service.net
         image: joelabair/iframely:latest
-        user: node
+        build: .
+        ports:
+          - 8061
         networks:
             sendsitesnet:
