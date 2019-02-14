@@ -1,27 +1,27 @@
-FROM node:8
+FROM node:10
 
-RUN groupadd --gid 988 -r node &> /dev/null || true
-RUN groupmod -g 988 node &> /dev/null || true
+MAINTAINER Joel A Bair <joel.a.bair@gmail.com>
 
-RUN useradd -r --uid 988 --gid 988 node &> /dev/null || true
-RUN usermod -d /home/node -s /bin/nologin -u 988 -g 988 node &> /dev/null || true
-RUN install -onode -gnode -d /home/node &> /dev/null || true
+USER root
+
+RUN groupmod --gid 988 node
+RUN usermod --shell /bin/nologin --uid 988 --gid 988 node
 
 COPY . /iframely
-
-WORKDIR /iframely
 
 RUN DEPS="libkrb5-dev" \
     apt-get update && \
     apt-get install -q -y --no-install-recommends $DEPS && \
-    npm install -g forever && \
-    npm install && \
     apt-get purge -y --auto-remove $DEPS && \
     apt-get autoremove && \
     apt-get clean
+
+WORKDIR /iframely
+
+RUN DEPS="libkrb5-dev" npm install --quiet
 
 USER node
 
 EXPOSE 8061
 
-ENTRYPOINT ["node", "./cluster.js"]
+CMD node ./cluster.js
