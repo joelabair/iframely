@@ -15,4 +15,6 @@ RUN DEPS="libkrb5-dev" \
     apt-get autoremove && \
     apt-get clean
 
+USER node
+
 ENTRYPOINT ["node", "./cluster.js"]
