@@ -5,6 +5,7 @@ process.title = 'iframely-cluster';
 
 GracefulCluster.start({
     log: sysUtils.log,
+	workersCount: process.env.NODE_FORKS,
     shutdownTimeout: CONFIG.SHUTDOWN_TIMEOUT,
     disableGraceful: CONFIG.DEBUG,
     restartOnTimeout: CONFIG.CLUSTER_WORKER_RESTART_ON_PERIOD,

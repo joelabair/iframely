@@ -1,30 +1,28 @@
 module.exports = {
 
     re: [
-        /^https?:\/\/www\.nbcnews\.com\/(?:[a-z\-]+\/)?videos?\/[a-zA-Z0-9-]+\-(\d+)/i        
+        /^https?:\/\/www\.nbcnews\.com\/(?:[a-z\-]+\/)?videos?\/[a-zA-Z0-9-]+\-(\d+)/i
     ],
 
     mixins: [
         "*"
     ],
 
-    getMeta: function (schemaVideoObject) {
+    getMeta: function (urlMatch) {
 
-        // if schemaVideoObject -> media=player
         return {
             media: "player"
-        }
+        };
 
     },
 
-    getLink: function(schemaVideoObject) {
+    getLink: function(urlMatch) {
 
-        if (schemaVideoObject.embedURL || schemaVideoObject.embedUrl) {
 
         return {
             href: 'https://www.nbcnews.com/widget/video-embed/' + urlMatch[1],
             rel: [CONFIG.R.player, CONFIG.R.html5],
-            type: CONFIG.T.maybe_text_html, // make sure it doesn't 404 
+            type: CONFIG.T.maybe_text_html, // make sure it doesn't 404
                                             // as in http://www.nbcnews.com/video/watch-live-obama-holds-final-press-conference-as-president-857386563735
             "aspect-ratio": 16/9,
             scrolling: 'no'
