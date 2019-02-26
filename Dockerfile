@@ -10,6 +10,9 @@ RUN install -onode -gnode -d /home/node
 
 COPY . /iframely
 
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64 /usr/local/bin/dumb-init
+RUN chmod +x /usr/local/bin/dumb-init
+
 RUN DEPS="libkrb5-dev" \
     apt-get update && \
     apt-get install -q -y --no-install-recommends $DEPS && \
@@ -25,4 +28,4 @@ USER node
 
 EXPOSE 8061
 
-CMD node ./cluster.js
+CMD dumb-init node ./cluster.js
