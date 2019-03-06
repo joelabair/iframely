@@ -16,3 +16,6 @@ lib/new/test.js
 
 iframely-private-plugins/
 iframley.komodoproject
+
+package-lock.json
+yarn.lock

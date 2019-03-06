@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:11
 
 MAINTAINER Joel A Bair <joel.a.bair@gmail.com>
 
@@ -29,3 +29,5 @@ USER node
 EXPOSE 8061
 
 CMD dumb-init node ./cluster.js
+
+# docker build -t joelabair/iframely .
