@@ -41,7 +41,8 @@
     "request": "^2.88.0",
     "sax": "1.2.2",
     "send": "0.16.1",
-    "underscore": "1.8.3"
+    "underscore": "1.8.3",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -56,9 +57,12 @@
   "main": "./lib/core",
   "scripts": {
     "test": "vows test/main.js --isolate --spec && npm run test-e2e",
-    "test-e2e": "NODE_ENV=test PORT=8080 mocha --exit test/e2e.js"
+    "test-e2e": "NODE_ENV=test PORT=8080 mocha --exit test/e2e.js",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "engines": {
     "node": ">=0.10.21"
-  }
+  },
+  "snyk": true
 }
